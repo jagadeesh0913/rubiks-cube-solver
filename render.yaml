@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: rubiks-cube-solver
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python run.py
+    plan: free
+    envVars:
+      - key: PORT
+        generateValue: false
+      - key: PYTHON_VERSION
+        value: 3.11.0
