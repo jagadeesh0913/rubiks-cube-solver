@@ -408,6 +408,26 @@ class App {
     if (btn) btn.textContent = (newStyle === 'circles') ? 'Style: Circles' : 'Style: Squares';
   }
 
+  // ─── Mobile Segmented Tab Switcher ──────────────────────────────────────────
+  switchMobileTab(tab) {
+    const playerRow = document.getElementById('row-player-controls');
+    const movesRow  = document.getElementById('row-moves-controls');
+    const tabPlayer = document.getElementById('tab-btn-player');
+    const tabMoves  = document.getElementById('tab-btn-moves');
+
+    if (tab === 'player') {
+      if (playerRow) playerRow.classList.remove('mobile-tab-hidden');
+      if (movesRow)  movesRow.classList.add('mobile-tab-hidden');
+      if (tabPlayer) tabPlayer.classList.add('active');
+      if (tabMoves)  tabMoves.classList.remove('active');
+    } else if (tab === 'moves') {
+      if (playerRow) playerRow.classList.add('mobile-tab-hidden');
+      if (movesRow)  movesRow.classList.remove('mobile-tab-hidden');
+      if (tabPlayer) tabPlayer.classList.remove('active');
+      if (tabMoves)  tabMoves.classList.add('active');
+    }
+  }
+
   // ─── Mobile: toggle 2D panel slide-over ──────────────────────────────────────
   toggle2DPanel() {
     const panel = document.getElementById('side-2d-panel');

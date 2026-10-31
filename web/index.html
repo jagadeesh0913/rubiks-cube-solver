@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>3D Rubik's Cube Solver</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -11,7 +11,7 @@
   <!-- Top Navigation Header -->
   <header>
     <div class="logo-group">
-      <h1>🧊 RUBIK'S CUBE</h1>
+      <h1>🧊 <span class="logo-text">RUBIK'S CUBE</span></h1>
       <div class="header-sub hide-mobile">2D &amp; 3D Views • Optimal Solver</div>
     </div>
 
@@ -19,21 +19,21 @@
       <button class="btn btn-primary" id="btn-solve" onclick="app.solveCube()" title="Calculate optimal solution">
         ⚡ <span class="hide-mobile">Find Solution</span><span class="show-mobile">Solve</span>
       </button>
-      <button class="btn" onclick="app.scramble()" title="Scramble with 20 random moves">
-        🔀 <span class="hide-mobile">Scramble</span><span class="show-mobile">Mix</span>
+      <button class="btn btn-icon" onclick="app.scramble()" title="Scramble with 20 random moves">
+        🔀 <span class="hide-mobile">Scramble</span>
       </button>
-      <button class="btn" onclick="app.reset()" title="Reset cube to solved state">
+      <button class="btn btn-icon" onclick="app.reset()" title="Reset cube to solved state">
         ↺ <span class="hide-mobile">Reset</span>
       </button>
-      <button class="btn" onclick="app.cube3d.resetView()" title="Reset 3D camera angle">
+      <button class="btn btn-icon" onclick="app.cube3d.resetView()" title="Reset 3D camera angle">
         <span class="hide-mobile">Reset View</span><span class="show-mobile">📷</span>
       </button>
       <button class="btn hide-mobile" id="btn-sticker-style" onclick="app.toggleStickerStyle()">
         Style: Circles
       </button>
       <!-- Mobile only: Toggle 2D panel -->
-      <button class="btn show-mobile" id="btn-toggle-2d" onclick="app.toggle2DPanel()" title="Toggle 2D Net">
-        🗺️ 2D
+      <button class="btn show-mobile btn-net-badge" id="btn-toggle-2d" onclick="app.toggle2DPanel()" title="Open 2D Flat Net & Color Palette">
+        🎨 2D Net
       </button>
     </div>
   </header>
@@ -51,25 +51,25 @@
     <aside id="side-2d-panel">
       <div class="side-header">
         <div class="side-title">
-          <span>🗺️ 2D Flat Net</span>
+          <span>🗺️ 2D Flat Net &amp; Painter</span>
           <span class="side-badge">LIVE SYNC</span>
         </div>
-        <button class="btn show-mobile" style="padding:2px 8px; font-size:0.8rem; min-width:28px;" onclick="app.toggle2DPanel()">✕</button>
+        <button class="btn show-mobile btn-close-panel" onclick="app.toggle2DPanel()">✕ Done</button>
       </div>
 
       <!-- 2D Panel Notification Banner -->
       <div id="panel-notification" class="panel-notification" style="display:none;"></div>
 
       <div class="side-sub">
-        Click any cell on the <strong>2D net</strong> OR any sticker on the <strong>3D cube</strong> to paint. Both views sync live!
+        Tap any cell on the <strong>2D net</strong> OR any sticker on the <strong>3D cube</strong> to paint.
       </div>
 
       <!-- Color Palette -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-        <span style="font-size: 0.76rem; font-weight: 700; color: #fbbf24;">Brush Color (Keys 1–6):</span>
-        <div style="display: flex; gap: 4px;">
-          <button class="btn" id="btn-undo-paint" style="padding: 2px 7px; font-size: 0.72rem;" onclick="app.painter.undo()" disabled title="Undo last paint action (Ctrl+Z)">↩ Undo</button>
-          <button class="btn" id="btn-revert-paint" style="padding: 2px 7px; font-size: 0.72rem;" onclick="app.painter.revertAll()" disabled title="Revert all painted stickers to state before painting">↺ Revert</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+        <span style="font-size: 0.78rem; font-weight: 700; color: #fbbf24;">Brush Color:</span>
+        <div style="display: flex; gap: 6px;">
+          <button class="btn" id="btn-undo-paint" style="padding: 4px 8px; font-size: 0.75rem;" onclick="app.painter.undo()" disabled title="Undo last paint action">↩ Undo</button>
+          <button class="btn" id="btn-revert-paint" style="padding: 4px 8px; font-size: 0.75rem;" onclick="app.painter.revertAll()" disabled title="Revert all painted stickers">↺ Revert</button>
         </div>
       </div>
       <div class="paint-palette" id="palette-container"></div>
@@ -78,8 +78,8 @@
       <div id="net-2d-container"></div>
 
       <!-- Color Counters -->
-      <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">
-        Sticker Counts (9 of each required):
+      <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">
+        Sticker Counts (9 of each required to solve):
       </div>
       <div class="paint-counters" id="counters-container"></div>
     </aside>
@@ -88,14 +88,26 @@
 
   <!-- Bottom Controls Panel -->
   <div id="bottom-panel">
-    <div class="controls-row">
+
+    <!-- Mobile Segmented Tab Switcher (Mobile Only) -->
+    <div class="mobile-tabs show-mobile">
+      <button class="mobile-tab-btn active" id="tab-btn-player" onclick="app.switchMobileTab('player')">
+        ▶ Solution Player
+      </button>
+      <button class="mobile-tab-btn" id="tab-btn-moves" onclick="app.switchMobileTab('moves')">
+        🖐️ Manual Turns
+      </button>
+    </div>
+
+    <!-- Row 1: Solution Bar & Move Badges -->
+    <div class="controls-row controls-row-player" id="row-player-controls">
       <div class="solution-bar">
         <span class="solution-info" id="solution-info-label">Solution: Ready</span>
         <span class="solution-step hide-mobile" id="solution-step-label">0 / 0</span>
 
-        <button class="btn" style="padding: 4px 9px;" onclick="app.player.stepBackward()" title="Step Backward">⏮</button>
-        <button class="btn btn-primary" id="btn-play-pause" style="padding: 4px 14px;" onclick="app.player.togglePlay()">▶ Start</button>
-        <button class="btn" style="padding: 4px 9px;" onclick="app.player.stepForward()" title="Step Forward">⏭</button>
+        <button class="btn" style="padding: 6px 11px;" onclick="app.player.stepBackward()" title="Step Backward">⏮</button>
+        <button class="btn btn-primary" id="btn-play-pause" style="padding: 6px 16px;" onclick="app.player.togglePlay()">▶ Start</button>
+        <button class="btn" style="padding: 6px 11px;" onclick="app.player.stepForward()" title="Step Forward">⏭</button>
 
         <div class="speed-control">
           <label for="speed-slider" style="font-size: 0.74rem; color: var(--text-muted);">Speed:</label>
@@ -103,7 +115,7 @@
           <span class="speed-val" id="speed-val">300ms</span>
         </div>
 
-        <div class="speed-presets">
+        <div class="speed-presets hide-mobile">
           <button class="btn" style="padding:2px 6px; font-size:0.72rem;" onclick="app.player.setSpeed(100)">⚡0.1s</button>
           <button class="btn" style="padding:2px 6px; font-size:0.72rem;" onclick="app.player.setSpeed(300)">0.3s</button>
           <button class="btn" style="padding:2px 6px; font-size:0.72rem;" onclick="app.player.setSpeed(1500)">🐢1.5s</button>
@@ -117,8 +129,9 @@
       </div>
     </div>
 
-    <div class="controls-row">
-      <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">Manual Turns:</div>
+    <!-- Row 2: Manual Moves Grid -->
+    <div class="controls-row controls-row-moves" id="row-moves-controls">
+      <div class="manual-turns-label hide-mobile" style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">Manual Turns:</div>
       <div class="moves-grid" id="moves-grid"></div>
     </div>
   </div>

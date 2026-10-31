@@ -56,7 +56,8 @@ class Cube3D {
     this.scene.background = new THREE.Color(0x090a0f);
 
     this.camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 100);
-    this.camera.position.set(8.5, 6.5, 10.0);
+    const defPos = this.getDefaultCameraPos();
+    this.camera.position.set(defPos[0], defPos[1], defPos[2]);
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     this.renderer.setSize(w, h);
@@ -592,8 +593,14 @@ class Cube3D {
     }
   }
 
+  getDefaultCameraPos() {
+    const isMobilePortrait = window.innerWidth <= 768 && (window.innerWidth < window.innerHeight);
+    return isMobilePortrait ? [10.2, 7.8, 12.2] : [8.5, 6.5, 10.0];
+  }
+
   resetView() {
-    this.camera.position.set(8.5, 6.5, 10.0);
+    const defPos = this.getDefaultCameraPos();
+    this.camera.position.set(defPos[0], defPos[1], defPos[2]);
     this.controls.target.set(0, 0, 0);
     this.controls.update();
   }
@@ -602,7 +609,7 @@ class Cube3D {
     let w = this.container.clientWidth;
     let h = this.container.clientHeight;
     if (!w || w <= 0) w = window.innerWidth;
-    if (!h || h <= 0) h = Math.max(450, window.innerHeight - 180);
+    if (!h || h <= 0) h = window.innerHeight;
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h);

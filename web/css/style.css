@@ -53,6 +53,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   user-select: none;
 }
@@ -401,24 +402,31 @@ main {
   border: 1px solid var(--panel-border);
 }
 
-/* Move Indicator */
+/* Move Indicator (HUD Pill at top of canvas, never blocks cube) */
 #active-move-display {
   position: absolute;
-  bottom: 140px;
+  top: 16px;
   left: 50%;
   transform: translateX(-50%);
-  font-family: Georgia, serif;
-  font-size: 3rem;
-  font-weight: bold;
+  font-family: monospace;
+  font-size: 2rem;
+  font-weight: 800;
   color: var(--accent);
-  text-shadow: 0 0 24px rgba(230, 57, 70, 0.6);
+  background: rgba(12, 16, 24, 0.82);
+  border: 1px solid var(--panel-border);
+  backdrop-filter: blur(10px);
+  padding: 4px 18px;
+  border-radius: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 30;
 }
 
 #active-move-display.show {
   opacity: 1;
+  transform: translateX(-50%) scale(1.06);
 }
 
 /* Bottom Controls */
@@ -559,19 +567,24 @@ main {
 
 /* Notification Toast */
 #toast {
-  position: absolute;
-  top: 80px;
-  right: 20px;
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 28px);
+  max-width: 440px;
   padding: 10px 18px;
-  background: var(--panel-bg);
+  background: rgba(15, 18, 26, 0.94);
   border: 1px solid var(--panel-border);
-  backdrop-filter: blur(12px);
-  border-radius: 8px;
+  backdrop-filter: blur(14px);
+  border-radius: 10px;
   font-size: 0.84rem;
+  font-weight: 500;
   color: var(--text);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  z-index: 50;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  z-index: 1000;
   display: none;
+  text-align: center;
   animation: fadeIn 0.2s;
 }
 
@@ -984,10 +997,34 @@ main {
 }
 
 /* ═══════════════════════════════════════════════════
-   RESPONSIVE / MOBILE LAYOUT
+   RESPONSIVE / MOBILE LAYOUT (Clean, No-Overlap Design)
 ═══════════════════════════════════════════════════ */
 .hide-mobile { display: inherit; }
 .show-mobile { display: none !important; }
+
+/* Segmented Mobile Tab Switcher */
+.mobile-tabs {
+  display: none;
+}
+
+.mobile-tab-btn {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.mobile-tab-btn.active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
 
 .speed-presets {
   display: flex;
@@ -998,7 +1035,7 @@ main {
 /* ── Tablet (≤900px) ── */
 @media (max-width: 900px) {
   #side-2d-panel {
-    width: 260px;
+    width: 270px;
   }
   .solution-bar {
     flex-wrap: wrap;
@@ -1013,77 +1050,89 @@ main {
   }
 }
 
-/* ── Mobile (≤680px): full redesign ── */
-@media (max-width: 680px) {
+/* ── Mobile (≤768px): Unified, Spacious, Zero-Overlap ── */
+@media (max-width: 768px) {
   .hide-mobile { display: none !important; }
   .show-mobile { display: inline-flex !important; }
 
-  /* ── Header ── */
+  /* Single-Row Clean Top Header */
   header {
-    padding: 0;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
-  }
-
-  /* Top row: logo + action buttons */
-  .logo-group {
+    height: 48px;
+    padding: 6px 10px;
     display: flex;
+    flex-direction: row;
     align-items: center;
-    padding: 8px 12px 6px;
+    justify-content: space-between;
+    gap: 6px;
     border-bottom: 1px solid var(--panel-border);
-  }
-  .logo-group h1 {
-    font-size: 1rem;
-    flex: 1;
+    background: rgba(12, 14, 20, 0.98);
   }
 
-  /* Action buttons row sits below logo on mobile */
+  .logo-group h1 {
+    font-size: 0.92rem;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
   .header-actions {
     display: flex;
     align-items: center;
-    justify-content: space-around;
-    padding: 6px 10px;
-    gap: 6px;
-    background: rgba(10, 12, 18, 0.98);
+    gap: 5px;
+    flex-wrap: nowrap;
   }
 
-  /* Make each header button bigger for tap */
   .header-actions .btn {
-    flex: 1;
-    justify-content: center;
-    padding: 8px 6px;
-    font-size: 0.82rem;
-    min-height: 40px;
-    border-radius: 8px;
+    padding: 6px 9px;
+    font-size: 0.78rem;
+    min-height: 34px;
+    border-radius: 6px;
+    white-space: nowrap;
     gap: 4px;
   }
 
-  /* ── Main 3D area ── */
+  .btn-icon {
+    min-width: 34px;
+    padding: 6px 8px !important;
+    justify-content: center;
+  }
+
+  .btn-net-badge {
+    background: #1e3a5f !important;
+    color: #60a5fa !important;
+    border-color: #2563eb !important;
+    font-weight: 700 !important;
+  }
+
+  /* Main Viewport: Canvas gets maximum breathing room */
   main {
     flex-direction: column;
     position: relative;
+    overflow: hidden;
   }
 
   #canvas-container {
     flex: 1;
     min-height: 0;
+    width: 100%;
+    position: relative;
   }
 
-  /* ── 2D Panel: full-width slide-in overlay ── */
+  /* 2D Panel: Clean Slide-Over Drawer with Dark Backdrop */
   #side-2d-panel {
     position: fixed;
     top: 0;
     right: 0;
     bottom: 0;
-    width: 92%;
-    max-width: 360px;
+    width: 100%;
+    max-width: 380px;
     transform: translateX(105%);
-    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 200;
     border-left: 2px solid var(--accent);
-    box-shadow: -8px 0 32px rgba(0,0,0,0.7);
-    padding: 14px 12px;
+    background: rgba(13, 16, 23, 0.98);
+    backdrop-filter: blur(20px);
+    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.8);
+    padding: 14px 14px 20px;
     overflow-y: auto;
   }
 
@@ -1091,146 +1140,173 @@ main {
     transform: translateX(0);
   }
 
-  /* Close button inside panel — bigger tap target */
-  #side-2d-panel .show-mobile {
+  .btn-close-panel {
     padding: 6px 14px !important;
-    font-size: 1rem !important;
-    min-height: 36px;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    background: rgba(255, 255, 255, 0.12) !important;
     border-radius: 8px !important;
+    min-height: 34px;
   }
 
-  /* 2D net cells — slightly larger for touch */
-  .net-2d-cell {
-    width: 22px;
-    height: 22px;
-    border-radius: 3px;
+  /* 2D Net in Drawer */
+  .net-2d-grid {
+    grid-template-columns: repeat(4, 70px);
+    grid-template-rows: repeat(3, 70px);
+    gap: 6px;
   }
 
   .net-2d-face {
-    grid-template-columns: repeat(3, 22px);
-    grid-template-rows: repeat(3, 22px);
+    grid-template-columns: repeat(3, 20px);
+    grid-template-rows: repeat(3, 20px);
     gap: 2px;
     padding: 3px;
   }
 
-  .net-2d-grid {
-    grid-template-columns: repeat(4, 74px);
-    grid-template-rows: repeat(3, 74px);
-    gap: 6px;
+  .net-2d-cell {
+    width: 20px;
+    height: 20px;
   }
 
-  /* Palette buttons larger */
   .palette-btn {
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     border-radius: 8px;
+    font-size: 0.82rem;
   }
 
-  /* ── Bottom panel ── */
+  /* ── Bottom Controls Hub ── */
   #bottom-panel {
-    padding: 6px 8px 8px;
+    padding: 6px 10px 8px;
     gap: 4px;
+    background: rgba(12, 15, 22, 0.96);
+    border-top: 1px solid var(--panel-border);
+    backdrop-filter: blur(16px);
+    z-index: 20;
+    flex-shrink: 0;
   }
 
-  .controls-row {
-    gap: 4px;
-    flex-wrap: wrap;
+  /* Segmented Mode Switcher */
+  .mobile-tabs {
+    display: flex;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid var(--panel-border);
+    border-radius: 20px;
+    padding: 3px;
+    gap: 3px;
+    margin: 0 auto 5px;
+    width: fit-content;
   }
 
-  /* Solution bar: compact two-line layout */
-  .solution-bar {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 1fr auto auto auto;
-    align-items: center;
+  .mobile-tab-hidden {
+    display: none !important;
+  }
+
+  /* Solution Player Mode */
+  .controls-row-player {
+    display: flex;
+    flex-direction: column;
     gap: 5px;
-    padding: 6px 8px;
+    width: 100%;
+  }
+
+  .solution-bar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 5px 8px;
     border-radius: 8px;
-    flex-wrap: nowrap;
-    overflow: hidden;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--panel-border);
+    width: 100%;
+    flex-shrink: 0;
   }
 
   .solution-info {
-    min-width: unset;
-    font-size: 0.75rem;
+    font-size: 0.74rem;
+    flex: 1;
+    min-width: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    grid-column: 1 / -1; /* full row on mobile */
   }
 
-  /* Play/pause button full-width on mobile */
   #btn-play-pause {
-    width: auto;
-    min-width: 80px;
-    max-width: unset;
-    padding: 7px 12px;
-    font-size: 0.82rem;
-    min-height: 38px;
+    min-width: 76px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    min-height: 36px;
+    white-space: nowrap;
   }
 
-  /* Step buttons bigger tap target */
   .solution-bar > .btn {
-    padding: 7px 10px;
-    min-height: 38px;
-    font-size: 0.9rem;
+    padding: 6px 9px;
+    min-height: 36px;
+    font-size: 0.85rem;
   }
 
-  /* Speed control compact */
   .speed-control {
-    padding: 3px 7px;
-    gap: 5px;
+    padding: 3px 6px;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.3);
   }
+
   .speed-slider {
-    width: 70px;
+    width: 60px;
   }
+
   .speed-val {
-    min-width: 44px;
-    font-size: 0.72rem;
+    min-width: 38px;
+    font-size: 0.7rem;
   }
 
-  /* Hide speed presets on mobile */
-  .speed-presets { display: none; }
-
-  /* Move badges scroll row */
+  /* Scrollable Solution Badges */
   .moves-badges {
-    max-width: 100%;
-    font-size: 0.74rem;
-  }
-
-  /* Manual move buttons: scrollable row */
-  .moves-grid {
-    flex-wrap: nowrap;
+    width: 100%;
+    padding: 3px 0 2px;
+    gap: 4px;
     overflow-x: auto;
-    padding-bottom: 4px;
-    gap: 5px;
+    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
-  .moves-grid::-webkit-scrollbar { display: none; }
+  .moves-badges::-webkit-scrollbar { display: none; }
+
+  .move-badge {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  /* Manual Turns Mode: Clean 6-Column Grid */
+  .controls-row-moves {
+    width: 100%;
+    padding: 2px 0;
+  }
+
+  .moves-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 5px;
+    width: 100%;
+  }
 
   .move-btn {
-    padding: 6px 10px;
-    font-size: 0.78rem;
-    min-height: 36px;
-    flex-shrink: 0;
-    border-radius: 6px;
-  }
-
-  /* Toast position */
-  #toast {
-    top: auto;
-    bottom: 80px;
-    right: 12px;
-    left: 12px;
-    text-align: center;
+    padding: 8px 0;
     font-size: 0.82rem;
+    font-weight: 700;
+    text-align: center;
+    min-height: 38px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
   }
 
-  /* Celebration modal */
+  /* Celebration Modal Mobile */
   .celebration-card {
-    padding: 24px 16px 18px;
+    padding: 24px 18px 18px;
     border-radius: 14px;
-    margin: 10px;
+    margin: 12px;
   }
   .celebration-title { font-size: 1.5rem; }
   .celebration-emoji { font-size: 2.8rem; }
@@ -1247,30 +1323,21 @@ main {
   }
 }
 
-/* ── Very small phones (≤380px) ── */
+/* ── Extra Small Phones (≤380px) ── */
 @media (max-width: 380px) {
-  .header-actions .btn {
-    padding: 7px 4px;
-    font-size: 0.75rem;
-  }
-  .net-2d-cell {
-    width: 19px;
-    height: 19px;
-  }
-  .net-2d-face {
-    grid-template-columns: repeat(3, 19px);
-    grid-template-rows: repeat(3, 19px);
-  }
+  .logo-group h1 { font-size: 0.85rem; }
+  .header-actions .btn { padding: 5px 6px; font-size: 0.74rem; }
   .net-2d-grid {
-    grid-template-columns: repeat(4, 63px);
-    grid-template-rows: repeat(3, 63px);
+    grid-template-columns: repeat(4, 62px);
+    grid-template-rows: repeat(3, 62px);
     gap: 4px;
   }
-  .celeb-stat {
-    padding: 8px 10px;
-    min-width: 60px;
+  .net-2d-face {
+    grid-template-columns: repeat(3, 18px);
+    grid-template-rows: repeat(3, 18px);
   }
-  .celeb-stat-value {
-    font-size: 1.2rem;
+  .net-2d-cell {
+    width: 18px;
+    height: 18px;
   }
 }
