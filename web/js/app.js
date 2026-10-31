@@ -412,7 +412,24 @@ class App {
   toggle2DPanel() {
     const panel = document.getElementById('side-2d-panel');
     if (!panel) return;
-    panel.classList.toggle('mobile-open');
+    const isOpen = panel.classList.toggle('mobile-open');
+
+    // Add/remove dark backdrop so user can tap outside to close
+    let backdrop = document.getElementById('mobile-backdrop');
+    if (isOpen) {
+      if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.id = 'mobile-backdrop';
+        backdrop.style.cssText = [
+          'position:fixed', 'inset:0', 'background:rgba(0,0,0,0.55)',
+          'z-index:199', 'backdrop-filter:blur(2px)', 'animation:fadeIn 0.2s ease'
+        ].join(';');
+        backdrop.addEventListener('click', () => this.toggle2DPanel());
+        document.body.appendChild(backdrop);
+      }
+    } else {
+      if (backdrop) backdrop.remove();
+    }
   }
 
   // ─── Single Unified Notification (Strictly one popup message!) ──────────────

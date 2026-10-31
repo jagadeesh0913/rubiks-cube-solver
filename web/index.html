@@ -20,20 +20,20 @@
         ⚡ <span class="hide-mobile">Find Solution</span><span class="show-mobile">Solve</span>
       </button>
       <button class="btn" onclick="app.scramble()" title="Scramble with 20 random moves">
-        🔀 <span class="hide-mobile">Scramble</span>
+        🔀 <span class="hide-mobile">Scramble</span><span class="show-mobile">Mix</span>
       </button>
       <button class="btn" onclick="app.reset()" title="Reset cube to solved state">
         ↺ <span class="hide-mobile">Reset</span>
       </button>
+      <button class="btn" onclick="app.cube3d.resetView()" title="Reset 3D camera angle">
+        <span class="hide-mobile">Reset View</span><span class="show-mobile">📷</span>
+      </button>
       <button class="btn hide-mobile" id="btn-sticker-style" onclick="app.toggleStickerStyle()">
         Style: Circles
       </button>
-      <button class="btn hide-mobile" onclick="app.cube3d.resetView()" title="Reset 3D camera angle">
-        Reset View
-      </button>
       <!-- Mobile only: Toggle 2D panel -->
       <button class="btn show-mobile" id="btn-toggle-2d" onclick="app.toggle2DPanel()" title="Toggle 2D Net">
-        🗺️
+        🗺️ 2D
       </button>
     </div>
   </header>
