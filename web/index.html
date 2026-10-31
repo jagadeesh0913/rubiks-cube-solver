@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>3D Rubik's Cube Solver</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="logo-group">
+      <h1>🧊 RUBIK'S CUBE</h1>
+      <div class="header-sub hide-mobile">2D &amp; 3D Views • Optimal Solver</div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-primary" id="btn-solve" onclick="app.solveCube()" title="Calculate optimal solution">
+        ⚡ <span class="hide-mobile">Find Solution</span><span class="show-mobile">Solve</span>
+      </button>
+      <button class="btn" onclick="app.scramble()" title="Scramble with 20 random moves">
+        🔀 <span class="hide-mobile">Scramble</span>
+      </button>
+      <button class="btn" onclick="app.reset()" title="Reset cube to solved state">
+        ↺ <span class="hide-mobile">Reset</span>
+      </button>
+      <button class="btn hide-mobile" id="btn-sticker-style" onclick="app.toggleStickerStyle()">
+        Style: Circles
+      </button>
+      <button class="btn hide-mobile" onclick="app.cube3d.resetView()" title="Reset 3D camera angle">
+        Reset View
+      </button>
+      <!-- Mobile only: Toggle 2D panel -->
+      <button class="btn show-mobile" id="btn-toggle-2d" onclick="app.toggle2DPanel()" title="Toggle 2D Net">
+        🗺️
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Area: Simultaneous 3D Viewport + 2D Net Panel -->
+  <main>
+    <!-- 3D WebGL Canvas + overlaid hints -->
+    <div id="canvas-container">
+      <div class="canvas-hint hide-mobile">Drag to orbit • Scroll to zoom • Click sticker to paint</div>
+      <div id="active-move-display">•</div>
+      <div id="toast"></div>
+    </div>
+
+    <!-- Right: 2D Flat Net Panel -->
+    <aside id="side-2d-panel">
+      <div class="side-header">
+        <div class="side-title">
+          <span>🗺️ 2D Flat Net</span>
+          <span class="side-badge">LIVE SYNC</span>
+        </div>
+        <button class="btn show-mobile" style="padding:2px 8px; font-size:0.8rem; min-width:28px;" onclick="app.toggle2DPanel()">✕</button>
+      </div>
+
+      <!-- 2D Panel Notification Banner -->
+      <div id="panel-notification" class="panel-notification" style="display:none;"></div>
+
+      <div class="side-sub">
+        Click any cell on the <strong>2D net</strong> OR any sticker on the <strong>3D cube</strong> to paint. Both views sync live!
+      </div>
+
+      <!-- Color Palette -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+        <span style="font-size: 0.76rem; font-weight: 700; color: #fbbf24;">Brush Color (Keys 1–6):</span>
+        <div style="display: flex; gap: 4px;">
+          <button class="btn" id="btn-undo-paint" style="padding: 2px 7px; font-size: 0.72rem;" onclick="app.painter.undo()" disabled title="Undo last paint action (Ctrl+Z)">↩ Undo</button>
+          <button class="btn" id="btn-revert-paint" style="padding: 2px 7px; font-size: 0.72rem;" onclick="app.painter.revertAll()" disabled title="Revert all painted stickers to state before painting">↺ Revert</button>
+        </div>
+      </div>
+      <div class="paint-palette" id="palette-container"></div>
+
+      <!-- 2D Unfolded Net Grid -->
+      <div id="net-2d-container"></div>
+
+      <!-- Color Counters -->
+      <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">
+        Sticker Counts (9 of each required):
+      </div>
+      <div class="paint-counters" id="counters-container"></div>
+    </aside>
+
+  </main>
+
+  <!-- Bottom Controls Panel -->
+  <div id="bottom-panel">
+    <div class="controls-row">
+      <div class="solution-bar">
+        <span class="solution-info" id="solution-info-label">Solution: Ready</span>
+        <span class="solution-step hide-mobile" id="solution-step-label">0 / 0</span>
+
+        <button class="btn" style="padding: 4px 9px;" onclick="app.player.stepBackward()" title="Step Backward">⏮</button>
+        <button class="btn btn-primary" id="btn-play-pause" style="padding: 4px 14px;" onclick="app.player.togglePlay()">▶ Start</button>
+        <button class="btn" style="padding: 4px 9px;" onclick="app.player.stepForward()" title="Step Forward">⏭</button>
+
+        <div class="speed-control">
+          <label for="speed-slider" style="font-size: 0.74rem; color: var(--text-muted);">Speed:</label>
+          <input type="range" class="speed-slider" id="speed-slider" min="50" max="10000" step="50" value="300">
+          <span class="speed-val" id="speed-val">300ms</span>
+        </div>
+
+        <div class="speed-presets">
+          <button class="btn" style="padding:2px 6px; font-size:0.72rem;" onclick="app.player.setSpeed(100)">⚡0.1s</button>
+          <button class="btn" style="padding:2px 6px; font-size:0.72rem;" onclick="app.player.setSpeed(300)">0.3s</button>
+          <button class="btn" style="padding:2px 6px; font-size:0.72rem;" onclick="app.player.setSpeed(1500)">🐢1.5s</button>
+          <button class="btn" style="padding:2px 6px; font-size:0.72rem;" onclick="app.player.setSpeed(5000)">5s</button>
+          <button class="btn" style="padding:2px 6px; font-size:0.72rem;" onclick="app.player.setSpeed(10000)">10s</button>
+        </div>
+      </div>
+
+      <div class="moves-badges" id="moves-badges-list">
+        <span style="color: var(--text-muted); font-size: 0.78rem;">Click "⚡ Solve" to calculate optimal moves</span>
+      </div>
+    </div>
+
+    <div class="controls-row">
+      <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">Manual Turns:</div>
+      <div class="moves-grid" id="moves-grid"></div>
+    </div>
+  </div>
+
+  <!-- ══ CELEBRATION MODAL ══ -->
+  <div id="celebration-modal" class="celebration-overlay" style="display:none;">
+    <div class="celebration-card">
+      <div class="celebration-emoji">🎉</div>
+      <h2 class="celebration-title">Cube Solved!</h2>
+      <p class="celebration-sub" id="celebration-sub">Amazing! Solved successfully.</p>
+      <div class="celebration-stats" id="celebration-stats"></div>
+      <div class="celebration-actions">
+        <button class="btn btn-primary" onclick="app.celebrationRestart()">
+          🔄 Restore Original State
+        </button>
+        <button class="btn btn-success" onclick="app.scrambleAndClose()">
+          🔀 New Scramble
+        </button>
+        <button class="btn" onclick="app.closeCelebration()">
+          ✕ Dismiss
+        </button>
+      </div>
+    </div>
+    <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+  </div>
+
+  <!-- Error Banner -->
+  <div id="js-error-banner" style="display:none;position:fixed;top:0;left:0;right:0;background:#b91c1c;color:#fff;padding:12px;z-index:9999;font-family:monospace;font-size:13px;"></div>
+  <script>
+    window.onerror = function(msg, url, line) {
+      var b = document.getElementById('js-error-banner');
+      if (b) { b.style.display = 'block'; b.innerHTML = '<strong>JS Error:</strong> ' + msg + ' (Line ' + line + ')'; }
+    };
+  </script>
+
+  <script src="js/three.min.js"></script>
+  <script src="js/OrbitControls.js"></script>
+  <script src="js/cube3d.js"></script>
+  <script src="js/painter.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

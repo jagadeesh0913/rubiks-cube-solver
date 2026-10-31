@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Rubik's Cube Solver • Circular Rotation & Two-Phase Engine</title>
+  <style>
+    :root {
+      --bg: #090a0f;
+      --panel-bg: rgba(18, 20, 28, 0.85);
+      --border: rgba(255, 255, 255, 0.08);
+      --accent: #e63946;
+      --text: #f0f2f5;
+      --text-muted: #8c93a4;
+      --col-u: #f5f5f7;
+      --col-d: #f6d32d;
+      --col-l: #ff9a1f;
+      --col-r: #e63946;
+      --col-f: #22c55e;
+      --col-b: #1d78f2;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    header {
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(12, 14, 20, 0.95);
+      backdrop-filter: blur(12px);
+      z-index: 10;
+    }
+    .logo-group h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-badge {
+      font-size: 0.68rem;
+      background: rgba(230, 57, 70, 0.18);
+      color: var(--accent);
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid rgba(230, 57, 70, 0.3);
+      font-weight: 600;
+    }
+    .header-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      font-weight: 500;
+    }
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+    .btn-primary:hover {
+      background: #ff4757;
+      box-shadow: 0 0 16px rgba(230, 57, 70, 0.4);
+    }
+    .btn-success {
+      background: #10b981;
+      color: #fff;
+      border-color: #10b981;
+      font-weight: 600;
+    }
+    .btn-success:hover {
+      background: #059669;
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #canvas-container {
+      flex: 1;
+      position: relative;
+      cursor: grab;
+    }
+    #canvas-container:active { cursor: grabbing; }
+    canvas { width: 100%; height: 100%; display: block; }
+
+    /* Move Indicator */
+    #active-move-display {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: Georgia, serif;
+      font-size: 3.5rem;
+      font-weight: bold;
+      color: var(--accent);
+      text-shadow: 0 0 24px rgba(230, 57, 70, 0.5);
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    /* Floating View Controls */
+    .view-controls {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 5;
+    }
+    .view-controls .btn {
+      background: rgba(18, 20, 28, 0.8);
+      backdrop-filter: blur(8px);
+    }
+
+    /* Sidebar Panel (Painter & Solutions) */
+    #side-panel {
+      width: 380px;
+      background: var(--panel-bg);
+      border-left: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+      overflow-y: auto;
+    }
+
+    .panel-section {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* 2D Cube Net Painter */
+    .net-container {
+      display: grid;
+      grid-template-columns: repeat(4, 54px);
+      grid-template-rows: repeat(3, 54px);
+      gap: 4px;
+      justify-content: center;
+      margin: 12px 0;
+    }
+    .net-face {
+      display: grid;
+      grid-template-columns: repeat(3, 16px);
+      grid-template-rows: repeat(3, 16px);
+      gap: 2px;
+      background: #000;
+      padding: 2px;
+      border-radius: 4px;
+      border: 1px solid #2a2d36;
+    }
+    .facelet-cell {
+      width: 16px;
+      height: 16px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .facelet-cell:hover {
+      transform: scale(1.15);
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+      z-index: 2;
+    }
+    .facelet-cell.center { cursor: default; transform: none !important; }
+
+    .palette {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .palette-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .palette-btn.selected {
+      border-color: #fff;
+      transform: scale(1.2);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+    }
+
+    .color-counters {
+      display: flex;
+      justify-content: space-around;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+    .counter-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .counter-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .counter-valid { color: #10b981; font-weight: bold; }
+    .counter-invalid { color: #ef4444; }
+
+    /* Move Buttons Grid */
+    .moves-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+      margin-top: 6px;
+    }
+    .move-btn {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 0;
+      border-radius: 4px;
+      font-family: Consolas, monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.1s;
+    }
+    .move-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Solution Box & Player */
+    .solution-box {
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      padding: 12px;
+      margin-top: 10px;
+    }
+    .solution-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      margin-bottom: 8px;
+    }
+    .moves-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      max-height: 90px;
+      overflow-y: auto;
+      padding: 4px 0;
+    }
+    .move-badge {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 3px 7px;
+      border-radius: 4px;
+      font-family: Consolas, monospace;
+      font-size: 0.76rem;
+      cursor: pointer;
+      transition: all 0.1s;
+    }
+    .move-badge.active {
+      background: var(--accent);
+      color: #fff;
+      font-weight: bold;
+      box-shadow: 0 0 8px rgba(230, 57, 70, 0.6);
+    }
+    .move-badge.done {
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+
+    .player-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      gap: 6px;
+    }
+    .player-btn {
+      flex: 1;
+      padding: 6px 0;
+      font-size: 0.8rem;
+      text-align: center;
+    }
+
+    /* Comparison Card */
+    .comparison-card {
+      background: rgba(230, 57, 70, 0.06);
+      border: 1px solid rgba(230, 57, 70, 0.2);
+      border-radius: 6px;
+      padding: 10px;
+      margin-top: 12px;
+      font-size: 0.76rem;
+      line-height: 1.4;
+    }
+    .comparison-card strong { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo-group">
+      <h1>Rubik's 3D Cube Solver <span class="logo-badge">Kociemba 2-Phase</span></h1>
+      <div class="header-sub">Optimal solution in ~20 moves with circular layer physics</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn" onclick="app.scramble(20)">🎲 Scramble (20)</button>
+      <button class="btn" onclick="app.resetSolved()">↺ Reset Solved</button>
+      <button class="btn btn-primary" onclick="app.solve()">⚡ Solve Cube</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="canvas-container">
+      <canvas id="cube-canvas"></canvas>
+      <div id="active-move-display">•</div>
+      <div class="view-controls">
+        <button class="btn" onclick="app.toggleStickerStyle()" id="style-toggle-btn">Stickers: Circles</button>
+        <button class="btn" onclick="app.toggleOrbitGuide()" id="guide-toggle-btn">Orbit Guide: ON</button>
+        <button class="btn" onclick="app.resetCamera()">↺ Reset View</button>
+      </div>
+    </div>
+
+    <aside id="side-panel">
+      <!-- Section 1: Color Painter -->
+      <div class="panel-section">
+        <div class="section-title">
+          <span>Set Unsolved State (Painter)</span>
+          <button class="btn" style="padding: 2px 6px; font-size: 0.72rem;" onclick="app.clearCustom()">Clear</button>
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px;">
+          Pick a color & click any sticker cell below to set your cube state:
+        </div>
+        <div class="palette">
+          <div class="palette-btn selected" style="background: var(--col-u);" onclick="app.selectColor('U')" title="White (U)"></div>
+          <div class="palette-btn" style="background: var(--col-r);" onclick="app.selectColor('R')" title="Red (R)"></div>
+          <div class="palette-btn" style="background: var(--col-f);" onclick="app.selectColor('F')" title="Green (F)"></div>
+          <div class="palette-btn" style="background: var(--col-d);" onclick="app.selectColor('D')" title="Yellow (D)"></div>
+          <div class="palette-btn" style="background: var(--col-l);" onclick="app.selectColor('L')" title="Orange (L)"></div>
+          <div class="palette-btn" style="background: var(--col-b);" onclick="app.selectColor('B')" title="Blue (B)"></div>
+        </div>
+
+        <div class="net-container" id="net-grid"></div>
+
+        <div class="color-counters" id="color-counters"></div>
+
+        <div style="display: flex; gap: 6px; margin-top: 10px;">
+          <button class="btn btn-success" style="flex: 1;" onclick="app.applyPainterToCube()">Apply to 3D Cube</button>
+        </div>
+      </div>
+
+      <!-- Section 2: Quick Face Turn Controls -->
+      <div class="panel-section">
+        <div class="section-title">Manual Face Turns (Circular Physics)</div>
+        <div class="moves-grid">
+          <button class="move-btn" onclick="app.performMove('U')">U</button>
+          <button class="move-btn" onclick="app.performMove('U\'')">U'</button>
+          <button class="move-btn" onclick="app.performMove('U2')">U2</button>
+          <button class="move-btn" onclick="app.performMove('D')">D</button>
+          <button class="move-btn" onclick="app.performMove('D\'')">D'</button>
+          <button class="move-btn" onclick="app.performMove('D2')">D2</button>
+          <button class="move-btn" onclick="app.performMove('L')">L</button>
+          <button class="move-btn" onclick="app.performMove('L\'')">L'</button>
+          <button class="move-btn" onclick="app.performMove('L2')">L2</button>
+          <button class="move-btn" onclick="app.performMove('R')">R</button>
+          <button class="move-btn" onclick="app.performMove('R\'')">R'</button>
+          <button class="move-btn" onclick="app.performMove('R2')">R2</button>
+          <button class="move-btn" onclick="app.performMove('F')">F</button>
+          <button class="move-btn" onclick="app.performMove('F\'')">F'</button>
+          <button class="move-btn" onclick="app.performMove('F2')">F2</button>
+          <button class="move-btn" onclick="app.performMove('B')">B</button>
+          <button class="move-btn" onclick="app.performMove('B\'')">B'</button>
+          <button class="move-btn" onclick="app.performMove('B2')">B2</button>
+        </div>
+      </div>
+
+      <!-- Section 3: Solution & Player -->
+      <div class="panel-section" style="flex: 1;">
+        <div class="section-title">
+          <span>Optimal Solution</span>
+          <span id="solution-status" style="font-size: 0.72rem; color: #10b981;">Ready</span>
+        </div>
+
+        <div class="solution-box">
+          <div class="solution-header">
+            <span id="solution-count-label">Moves: 0</span>
+            <span id="player-step-label">Step: 0 / 0</span>
+          </div>
+          <div class="moves-badges" id="moves-badges-list">
+            <span style="color: var(--text-muted); font-size: 0.75rem;">Click "Solve Cube" to find optimal solution</span>
+          </div>
+
+          <div class="player-controls">
+            <button class="btn player-btn" onclick="app.stepBackward()" title="Step Backward">⏮ Back</button>
+            <button class="btn player-btn btn-primary" id="play-pause-btn" onclick="app.togglePlay()" title="Play / Pause">▶ Play</button>
+            <button class="btn player-btn" onclick="app.stepForward()" title="Step Forward">Next ⏭</button>
+          </div>
+        </div>
+
+        <div class="comparison-card">
+          <strong>Why Kociemba's Two-Phase Algorithm?</strong><br>
+          • <strong>Kociemba:</strong> ~20–22 moves (< 0.2s)<br>
+          • <strong>CFOP:</strong> ~55–65 moves (Cross + F2L + OLL + PLL)<br>
+          • <strong>Roux:</strong> ~45–50 moves (Blocks + CMLL + LSE)<br>
+          Two-Phase search reaches God's Number territory with minimum computation!
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    // Face color mapping
+    const COLOR_HEX = {
+      'U': '#f5f5f7', 'D': '#f6d32d', 'L': '#ff9a1f',
+      'R': '#e63946', 'F': '#22c55e', 'B': '#1d78f2'
+    };
+    const FACE_NAMES = ['U', 'R', 'F', 'D', 'L', 'B'];
+
+    // 3D Geometry definitions
+    const FACE_AXIS = {
+      'R': { axis: 0, sign: 1 },  'L': { axis: 0, sign: -1 },
+      'U': { axis: 1, sign: 1 },  'D': { axis: 1, sign: -1 },
+      'F': { axis: 2, sign: 1 },  'B': { axis: 2, sign: -1 }
+    };
+    const AXES = [
+      [1, 0, 0], [0, 1, 0], [0, 0, 1]
+    ];
+
+    // Rodrigues circular rotation
+    function rodrigues(p, u, theta) {
+      const cosT = Math.cos(theta);
+      const sinT = Math.sin(theta);
+      const dot = p[0]*u[0] + p[1]*u[1] + p[2]*u[2];
+      const cross = [
+        u[1]*p[2] - u[2]*p[1],
+        u[2]*p[0] - u[0]*p[2],
+        u[0]*p[1] - u[1]*p[0]
+      ];
+      return [
+        p[0]*cosT + cross[0]*sinT + u[0]*dot*(1 - cosT),
+        p[1]*cosT + cross[1]*sinT + u[1]*dot*(1 - cosT),
+        p[2]*cosT + cross[2]*sinT + u[2]*dot*(1 - cosT)
+      ];
+    }
+
+    // Mathematical Rubik's Cube state representation
+    class RubiksCubeApp {
+      constructor() {
+        this.canvas = document.getElementById('cube-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.activeMoveDisplay = document.getElementById('active-move-display');
+
+        // View options
+        this.stickerStyle = 'Circles'; // 'Circles' or 'Tiles'
+        this.showOrbitGuide = true;
+
+        // Camera
+        this.pitch = 0.42;
+        this.yaw = -0.58;
+        this.scale = 115.0;
+        this.isDragging = false;
+        this.lastMouseX = 0;
+        this.lastMouseY = 0;
+
+        // Cube State: 54 facelets indexed by (face, row, col)
+        this.state = {};
+        this.resetState();
+
+        // Animation
+        this.rotatingFace = null;
+        this.rotatingAngle = 0;
+        this.animationQueue = [];
+        this.isAnimating = false;
+
+        // Solution Player
+        this.solutionMoves = [];
+        this.solutionStep = 0;
+        this.isPlaying = false;
+        this.playTimer = null;
+
+        // Color Painter
+        this.selectedColor = 'U';
+        this.painterState = JSON.parse(JSON.stringify(this.state));
+
+        this.initEvents();
+        this.initPainterUI();
+        this.resize();
+        this.render();
+      }
+
+      resetState() {
+        for (let f of FACE_NAMES) {
+          for (let r = 0; r < 3; r++) {
+            for (let c = 0; c < 3; c++) {
+              this.state[`${f}_${r}_${c}`] = f;
+            }
+          }
+        }
+      }
+
+      resize() {
+        this.width = this.canvas.parentElement.clientWidth;
+        this.height = this.canvas.parentElement.clientHeight;
+        this.canvas.width = this.width * window.devicePixelRatio;
+        this.canvas.height = this.height * window.devicePixelRatio;
+        this.ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        this.render();
+      }
+
+      initEvents() {
+        window.addEventListener('resize', () => this.resize());
+
+        const el = this.canvas;
+        el.addEventListener('mousedown', (e) => {
+          this.isDragging = true;
+          this.lastMouseX = e.clientX;
+          this.lastMouseY = e.clientY;
+        });
+        window.addEventListener('mousemove', (e) => {
+          if (!this.isDragging) return;
+          const dx = e.clientX - this.lastMouseX;
+          const dy = e.clientY - this.lastMouseY;
+          this.lastMouseX = e.clientX;
+          this.lastMouseY = e.clientY;
+          this.yaw += dx * 0.01;
+          this.pitch += dy * 0.01;
+          this.pitch = Math.max(-1.45, Math.min(1.45, this.pitch));
+          this.render();
+        });
+        window.addEventListener('mouseup', () => { this.isDragging = false; });
+
+        el.addEventListener('wheel', (e) => {
+          e.preventDefault();
+          this.scale *= (e.deltaY < 0 ? 1.08 : 0.92);
+          this.scale = Math.max(60, Math.min(220, this.scale));
+          this.render();
+        }, { passive: false });
+      }
+
+      resetCamera() {
+        this.pitch = 0.42;
+        this.yaw = -0.58;
+        this.scale = 115.0;
+        this.render();
+      }
+
+      toggleStickerStyle() {
+        this.stickerStyle = (this.stickerStyle === 'Circles' ? 'Tiles' : 'Circles');
+        document.getElementById('style-toggle-btn').innerText = `Stickers: ${this.stickerStyle}`;
+        this.render();
+      }
+
+      toggleOrbitGuide() {
+        this.showOrbitGuide = !this.showOrbitGuide;
+        document.getElementById('guide-toggle-btn').innerText = `Orbit Guide: ${this.showOrbitGuide ? 'ON' : 'OFF'}`;
+        this.render();
+      }
+
+      // ------------------------------------------------------------------------
+      // 3D Rendering with Painter's Algorithm & Lighting
+      // ------------------------------------------------------------------------
+      render() {
+        const ctx = this.ctx;
+        ctx.clearRect(0, 0, this.width, this.height);
+
+        const cx = this.width / 2;
+        const cy = this.height / 2;
+
+        const cosY = Math.cos(this.yaw), sinY = Math.sin(this.yaw);
+        const cosP = Math.cos(this.pitch), sinP = Math.sin(this.pitch);
+
+        const rotView = (v) => {
+          // Ry then Rx
+          const x1 = v[0]*cosY + v[2]*sinY;
+          const y1 = v[1];
+          const z1 = -v[0]*sinY + v[2]*cosY;
+          const x2 = x1;
+          const y2 = y1*cosP - z1*sinP;
+          const z2 = y1*sinP + z1*cosP;
+          return [x2, y2, z2];
+        };
+
+        const lightDir = [0.45, 0.85, 0.55];
+        const lLen = Math.hypot(...lightDir);
+        const L = lightDir.map(v => v / lLen);
+
+        const cubieHw = 0.46;
+        const stickerHw = 0.39;
+        const stickerR = 0.38;
+
+        let rotAxis = null, rotSign = null, rotUnit = null, rotTheta = 0;
+        if (this.rotatingFace) {
+          const info = FACE_AXIS[this.rotatingFace];
+          rotAxis = info.axis;
+          rotSign = info.sign;
+          rotUnit = AXES[rotAxis];
+          rotTheta = this.rotatingAngle;
+        }
+
+        const polygons = [];
+
+        // All 27 cubies
+        for (let x = -1; x <= 1; x++) {
+          for (let y = -1; y <= 1; y++) {
+            for (let z = -1; z <= 1; z++) {
+              const cPos = [x, y, z];
+              const isMoving = (rotAxis !== null && cPos[rotAxis] === rotSign);
+
+              const faceDefs = [
+                { norm: [0, 1, 0], u: [1, 0, 0], v: [0, 0, -1], face: 'U', r: z + 1, c: x + 1 },
+                { norm: [0, -1, 0], u: [1, 0, 0], v: [0, 0, 1], face: 'D', r: 1 - z, c: x + 1 },
+                { norm: [1, 0, 0], u: [0, 0, -1], v: [0, 1, 0], face: 'R', r: 1 - y, c: 1 - z },
+                { norm: [-1, 0, 0], u: [0, 0, 1], v: [0, 1, 0], face: 'L', r: 1 - y, c: z + 1 },
+                { norm: [0, 0, 1], u: [1, 0, 0], v: [0, 1, 0], face: 'F', r: 1 - y, c: x + 1 },
+                { norm: [0, 0, -1], u: [-1, 0, 0], v: [0, 1, 0], face: 'B', r: 1 - y, c: 1 - x }
+              ];
+
+              for (let fd of faceDefs) {
+                const norm = fd.norm;
+                const isOuter = (
+                  (norm[0] === x && x !== 0) ||
+                  (norm[1] === y && y !== 0) ||
+                  (norm[2] === z && z !== 0)
+                );
+                const isInternalExposed = isMoving || (
+                  rotAxis !== null && !isMoving &&
+                  norm[rotAxis] === rotSign && cPos[rotAxis] === 0
+                );
+
+                if (!isOuter && !isInternalExposed) continue;
+
+                // Cubie Quad
+                const p0 = [
+                  cPos[0] + norm[0]*cubieHw,
+                  cPos[1] + norm[1]*cubieHw,
+                  cPos[2] + norm[2]*cubieHw
+                ];
+                let quad = [
+                  [p0[0] - fd.u[0]*cubieHw - fd.v[0]*cubieHw, p0[1] - fd.u[1]*cubieHw - fd.v[1]*cubieHw, p0[2] - fd.u[2]*cubieHw - fd.v[2]*cubieHw],
+                  [p0[0] + fd.u[0]*cubieHw - fd.v[0]*cubieHw, p0[1] + fd.u[1]*cubieHw - fd.v[1]*cubieHw, p0[2] + fd.u[2]*cubieHw - fd.v[2]*cubieHw],
+                  [p0[0] + fd.u[0]*cubieHw + fd.v[0]*cubieHw, p0[1] + fd.u[1]*cubieHw + fd.v[1]*cubieHw, p0[2] + fd.u[2]*cubieHw + fd.v[2]*cubieHw],
+                  [p0[0] - fd.u[0]*cubieHw + fd.v[0]*cubieHw, p0[1] - fd.u[1]*cubieHw + fd.v[1]*cubieHw, p0[2] - fd.u[2]*cubieHw + fd.v[2]*cubieHw]
+                ];
+                let currNorm = [...norm];
+
+                if (isMoving) {
+                  quad = quad.map(v => rodrigues(v, rotUnit, rotTheta));
+                  currNorm = rodrigues(currNorm, rotUnit, rotTheta);
+                }
+
+                polygons.push({
+                  verts: quad,
+                  norm: currNorm,
+                  color: '#111215',
+                  outline: '#20232a'
+                });
+
+                if (isOuter) {
+                  const stickerKey = `${fd.face}_${fd.r}_${fd.c}`;
+                  const colHex = COLOR_HEX[this.state[stickerKey] || fd.face];
+                  const pSt = [
+                    cPos[0] + norm[0]*(cubieHw + 0.006),
+                    cPos[1] + norm[1]*(cubieHw + 0.006),
+                    cPos[2] + norm[2]*(cubieHw + 0.006)
+                  ];
+
+                  let stkVerts = [];
+                  if (this.stickerStyle === 'Circles') {
+                    for (let k = 0; k < 16; k++) {
+                      const ang = k * 2 * Math.PI / 16;
+                      stkVerts.push([
+                        pSt[0] + (fd.u[0]*Math.cos(ang) + fd.v[0]*Math.sin(ang))*stickerR,
+                        pSt[1] + (fd.u[1]*Math.cos(ang) + fd.v[1]*Math.sin(ang))*stickerR,
+                        pSt[2] + (fd.u[2]*Math.cos(ang) + fd.v[2]*Math.sin(ang))*stickerR
+                      ]);
+                    }
+                  } else {
+                    stkVerts = [
+                      [pSt[0] - fd.u[0]*stickerHw - fd.v[0]*stickerHw, pSt[1] - fd.u[1]*stickerHw - fd.v[1]*stickerHw, pSt[2] - fd.u[2]*stickerHw - fd.v[2]*stickerHw],
+                      [pSt[0] + fd.u[0]*stickerHw - fd.v[0]*stickerHw, pSt[1] + fd.u[1]*stickerHw - fd.v[1]*stickerHw, pSt[2] + fd.u[2]*stickerHw - fd.v[2]*stickerHw],
+                      [pSt[0] + fd.u[0]*stickerHw + fd.v[0]*stickerHw, pSt[1] + fd.u[1]*stickerHw + fd.v[1]*stickerHw, pSt[2] + fd.u[2]*stickerHw + fd.v[2]*stickerHw],
+                      [pSt[0] - fd.u[0]*stickerHw + fd.v[0]*stickerHw, pSt[1] - fd.u[1]*stickerHw + fd.v[1]*stickerHw, pSt[2] - fd.u[2]*stickerHw + fd.v[2]*stickerHw]
+                    ];
+                  }
+
+                  if (isMoving) {
+                    stkVerts = stkVerts.map(v => rodrigues(v, rotUnit, rotTheta));
+                  }
+
+                  polygons.push({
+                    verts: stkVerts,
+                    norm: currNorm,
+                    color: colHex,
+                    outline: colHex === '#f5f5f7' ? '#d0d0d5' : '#000000'
+                  });
+                }
+              }
+            }
+          }
+        }
+
+        // Project and sort
+        const dCam = 8.5;
+        const toDraw = [];
+
+        for (let poly of polygons) {
+          const vCam = poly.verts.map(v => rotView(v));
+          const nCam = rotView(poly.norm);
+
+          if (nCam[2] <= 0.015) continue; // backface culling
+
+          const diff = Math.max(0, poly.norm[0]*L[0] + poly.norm[1]*L[1] + poly.norm[2]*L[2]);
+          const shade = 0.72 + 0.28 * diff;
+
+          const avgZ = vCam.reduce((acc, v) => acc + v[2], 0) / vCam.length;
+          const pts2d = vCam.map(v => {
+            const persp = dCam / (dCam - v[2]*0.1);
+            return [cx + v[0]*this.scale*persp, cy - v[1]*this.scale*persp];
+          });
+
+          toDraw.push({
+            z: avgZ,
+            pts: pts2d,
+            color: this.shadeColor(poly.color, shade),
+            outline: poly.outline
+          });
+        }
+
+        toDraw.sort((a, b) => a.z - b.z);
+
+        for (let item of toDraw) {
+          ctx.beginPath();
+          ctx.moveTo(item.pts[0][0], item.pts[0][1]);
+          for (let i = 1; i < item.pts.length; i++) {
+            ctx.lineTo(item.pts[i][0], item.pts[i][1]);
+          }
+          ctx.closePath();
+          ctx.fillStyle = item.color;
+          ctx.fill();
+          ctx.strokeStyle = item.outline;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        // Draw 3D Circular Orbit Guide Ring
+        if (this.showOrbitGuide && this.rotatingFace) {
+          this.draw3dOrbitRing(ctx, rotView, rotAxis, rotSign, cx, cy, dCam);
+        }
+      }
+
+      draw3dOrbitRing(ctx, rotView, axis, sign, cx, cy, dCam) {
+        const uAx = AXES[(axis + 1) % 3];
+        const vAx = AXES[(axis + 2) % 3];
+        const nAx = AXES[axis].map(v => v * (1.56 * sign));
+        const ringR = 1.50;
+
+        ctx.beginPath();
+        for (let deg = 0; deg <= 360; deg += 6) {
+          const rad = deg * Math.PI / 180;
+          const p3 = [
+            nAx[0] + (uAx[0]*Math.cos(rad) + vAx[0]*Math.sin(rad))*ringR,
+            nAx[1] + (uAx[1]*Math.cos(rad) + vAx[1]*Math.sin(rad))*ringR,
+            nAx[2] + (uAx[2]*Math.cos(rad) + vAx[2]*Math.sin(rad))*ringR
+          ];
+          const vCam = rotView(p3);
+          const persp = dCam / (dCam - vCam[2]*0.1);
+          const px = cx + vCam[0]*this.scale*persp;
+          const py = cy - vCam[1]*this.scale*persp;
+          if (deg === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.strokeStyle = '#e63946';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+      }
+
+      shadeColor(color, percent) {
+        let R = parseInt(color.substring(1,3), 16);
+        let G = parseInt(color.substring(3,5), 16);
+        let B = parseInt(color.substring(5,7), 16);
+        R = Math.min(255, Math.floor(R * percent));
+        G = Math.min(255, Math.floor(G * percent));
+        B = Math.min(255, Math.floor(B * percent));
+        return `rgb(${R},${G},${B})`;
+      }
+
+      // ------------------------------------------------------------------------
+      // Move Permutation & Animation
+      // ------------------------------------------------------------------------
+      performMove(move, onDone) {
+        if (this.isAnimating) {
+          this.animationQueue.push({ move, onDone });
+          return;
+        }
+
+        this.isAnimating = true;
+        const face = move[0];
+        const suffix = move.substring(1);
+        const turns = suffix === "'" ? 3 : (suffix === '2' ? 2 : 1);
+
+        this.activeMoveDisplay.innerText = move;
+        this.activeMoveDisplay.style.opacity = '1';
+
+        const info = FACE_AXIS[face];
+        const angleMag = (turns === 2 ? Math.PI : Math.PI / 2);
+        const targetAngle = -info.sign * (turns === 3 ? -Math.PI / 2 : angleMag);
+
+        this.rotatingFace = face;
+        const totalSteps = 12;
+        let step = 0;
+
+        const animate = () => {
+          step++;
+          const t = step / totalSteps;
+          const smoothT = t * t * (3 - 2 * t);
+          this.rotatingAngle = targetAngle * smoothT;
+          this.render();
+
+          if (step < totalSteps) {
+            requestAnimationFrame(animate);
+          } else {
+            // Apply logical move
+            this.applyLogicalMove(face, turns);
+            this.rotatingFace = null;
+            this.rotatingAngle = 0;
+            this.render();
+
+            setTimeout(() => {
+              this.isAnimating = false;
+              if (onDone) onDone();
+              if (this.animationQueue.length > 0) {
+                const next = this.animationQueue.shift();
+                this.performMove(next.move, next.onDone);
+              } else {
+                this.syncPainterFromState();
+              }
+            }, 30);
+          }
+        };
+
+        requestAnimationFrame(animate);
+      }
+
+      applyLogicalMove(face, turns) {
+        for (let t = 0; t < turns; t++) {
+          this.rotateFaceClockwise(face);
+        }
+      }
+
+      rotateFaceClockwise(face) {
+        const s = { ...this.state };
+        // Rotate face stickers 90 deg clockwise
+        for (let r = 0; r < 3; r++) {
+          for (let c = 0; c < 3; c++) {
+            this.state[`${face}_${c}_${2 - r}`] = s[`${face}_${r}_${c}`];
+          }
+        }
+        // Rotate adjacent layer edges
+        if (face === 'U') {
+          for (let i = 0; i < 3; i++) {
+            this.state[`F_0_${i}`] = s[`R_0_${i}`];
+            this.state[`L_0_${i}`] = s[`F_0_${i}`];
+            this.state[`B_0_${i}`] = s[`L_0_${i}`];
+            this.state[`R_0_${i}`] = s[`B_0_${i}`];
+          }
+        } else if (face === 'D') {
+          for (let i = 0; i < 3; i++) {
+            this.state[`F_2_${i}`] = s[`L_2_${i}`];
+            this.state[`R_2_${i}`] = s[`F_2_${i}`];
+            this.state[`B_2_${i}`] = s[`R_2_${i}`];
+            this.state[`L_2_${i}`] = s[`B_2_${i}`];
+          }
+        } else if (face === 'R') {
+          for (let i = 0; i < 3; i++) {
+            this.state[`U_${i}_2`] = s[`F_${i}_2`];
+            this.state[`B_${2-i}_0`] = s[`U_${i}_2`];
+            this.state[`D_${i}_2`] = s[`B_${2-i}_0`];
+            this.state[`F_${i}_2`] = s[`D_${i}_2`];
+          }
+        } else if (face === 'L') {
+          for (let i = 0; i < 3; i++) {
+            this.state[`U_${i}_0`] = s[`B_${2-i}_2`];
+            this.state[`F_${i}_0`] = s[`U_${i}_0`];
+            this.state[`D_${i}_0`] = s[`F_${i}_0`];
+            this.state[`B_${2-i}_2`] = s[`D_${i}_0`];
+          }
+        } else if (face === 'F') {
+          for (let i = 0; i < 3; i++) {
+            this.state[`U_2_${i}`] = s[`L_${2-i}_2`];
+            this.state[`R_${i}_0`] = s[`U_2_${i}`];
+            this.state[`D_0_${2-i}`] = s[`R_${i}_0`];
+            this.state[`L_${2-i}_2`] = s[`D_0_${2-i}`];
+          }
+        } else if (face === 'B') {
+          for (let i = 0; i < 3; i++) {
+            this.state[`U_0_${i}`] = s[`R_${i}_2`];
+            this.state[`L_${2-i}_0`] = s[`U_0_${i}`];
+            this.state[`D_2_${2-i}`] = s[`L_${2-i}_0`];
+            this.state[`R_${i}_2`] = s[`D_2_${2-i}`];
+          }
+        }
+      }
+
+      scramble(numMoves = 20) {
+        if (this.isAnimating) return;
+        const faces = ['U', 'D', 'L', 'R', 'F', 'B'];
+        const suffixes = ['', "'", '2'];
+        let prev = null;
+        const moves = [];
+        for (let i = 0; i < numMoves; i++) {
+          let f = faces[Math.floor(Math.random() * faces.length)];
+          while (f === prev) f = faces[Math.floor(Math.random() * faces.length)];
+          moves.push(f + suffixes[Math.floor(Math.random() * suffixes.length)]);
+          prev = f;
+        }
+
+        let i = 0;
+        const next = () => {
+          if (i < moves.length) {
+            this.performMove(moves[i++], next);
+          }
+        };
+        next();
+      }
+
+      resetSolved() {
+        this.resetState();
+        this.syncPainterFromState();
+        this.activeMoveDisplay.innerText = '•';
+        this.clearSolution();
+        this.render();
+      }
+
+      // ------------------------------------------------------------------------
+      // Color Painter UI & Unfolded Net
+      // ------------------------------------------------------------------------
+      initPainterUI() {
+        const grid = document.getElementById('net-grid');
+        grid.innerHTML = '';
+
+        // Net positioning:
+        // Row 0: . U . .
+        // Row 1: L F R B
+        // Row 2: . D . .
+        const layout = [
+          [null, 'U', null, null],
+          ['L', 'F', 'R', 'B'],
+          [null, 'D', null, null]
+        ];
+
+        for (let r = 0; r < 3; r++) {
+          for (let c = 0; c < 4; c++) {
+            const face = layout[r][c];
+            if (!face) {
+              const empty = document.createElement('div');
+              grid.appendChild(empty);
+              continue;
+            }
+
+            const faceDiv = document.createElement('div');
+            faceDiv.className = 'net-face';
+            for (let fr = 0; fr < 3; fr++) {
+              for (let fc = 0; fc < 3; fc++) {
+                const cell = document.createElement('div');
+                cell.className = 'facelet-cell' + (fr === 1 && fc === 1 ? ' center' : '');
+                cell.id = `net_${face}_${fr}_${fc}`;
+                cell.style.background = COLOR_HEX[this.painterState[`${face}_${fr}_${fc}`] || face];
+                if (!(fr === 1 && fc === 1)) {
+                  cell.onclick = () => this.paintCell(face, fr, fc);
+                }
+                faceDiv.appendChild(cell);
+              }
+            }
+            grid.appendChild(faceDiv);
+          }
+        }
+        this.updateCounters();
+      }
+
+      selectColor(col) {
+        this.selectedColor = col;
+        document.querySelectorAll('.palette-btn').forEach(btn => {
+          btn.classList.toggle('selected', btn.title.startsWith(col === 'U' ? 'White' : (col === 'R' ? 'Red' : (col === 'F' ? 'Green' : (col === 'D' ? 'Yellow' : (col === 'L' ? 'Orange' : 'Blue'))))));
+        });
+      }
+
+      paintCell(face, r, c) {
+        this.painterState[`${face}_${r}_${c}`] = this.selectedColor;
+        const cell = document.getElementById(`net_${face}_${r}_${c}`);
+        if (cell) cell.style.background = COLOR_HEX[this.selectedColor];
+        this.updateCounters();
+      }
+
+      updateCounters() {
+        const counts = { 'U': 0, 'R': 0, 'F': 0, 'D': 0, 'L': 0, 'B': 0 };
+        for (let key in this.painterState) {
+          counts[this.painterState[key]] = (counts[this.painterState[key]] || 0) + 1;
+        }
+        const container = document.getElementById('color-counters');
+        container.innerHTML = '';
+        for (let f of FACE_NAMES) {
+          const item = document.createElement('div');
+          item.className = 'counter-item';
+          const valid = (counts[f] === 9);
+          item.innerHTML = `
+            <div class="counter-dot" style="background: ${COLOR_HEX[f]};"></div>
+            <span class="${valid ? 'counter-valid' : 'counter-invalid'}">${f}: ${counts[f] || 0}/9</span>
+          `;
+          container.appendChild(item);
+        }
+      }
+
+      syncPainterFromState() {
+        this.painterState = JSON.parse(JSON.stringify(this.state));
+        for (let f of FACE_NAMES) {
+          for (let r = 0; r < 3; r++) {
+            for (let c = 0; c < 3; c++) {
+              const cell = document.getElementById(`net_${f}_${r}_${c}`);
+              if (cell) cell.style.background = COLOR_HEX[this.state[`${f}_${r}_${c}`]];
+            }
+          }
+        }
+        this.updateCounters();
+      }
+
+      clearCustom() {
+        for (let f of FACE_NAMES) {
+          for (let r = 0; r < 3; r++) {
+            for (let c = 0; c < 3; c++) {
+              if (!(r === 1 && c === 1)) {
+                this.painterState[`${f}_${r}_${c}`] = 'U';
+              }
+            }
+          }
+        }
+        this.syncPainterFromState();
+      }
+
+      applyPainterToCube() {
+        // Validate counts
+        const counts = { 'U': 0, 'R': 0, 'F': 0, 'D': 0, 'L': 0, 'B': 0 };
+        for (let key in this.painterState) {
+          counts[this.painterState[key]] = (counts[this.painterState[key]] || 0) + 1;
+        }
+        for (let f of FACE_NAMES) {
+          if (counts[f] !== 9) {
+            alert(`Invalid state: Face ${f} must have exactly 9 stickers (currently has ${counts[f] || 0}).`);
+            return;
+          }
+        }
+        this.state = JSON.parse(JSON.stringify(this.painterState));
+        this.render();
+        document.getElementById('solution-status').innerText = 'Custom state applied!';
+      }
+
+      // ------------------------------------------------------------------------
+      // Kociemba Solver API Integration & Playback
+      // ------------------------------------------------------------------------
+      getKociembaString() {
+        let str = '';
+        for (let f of ['U', 'R', 'F', 'D', 'L', 'B']) {
+          for (let r = 0; r < 3; r++) {
+            for (let c = 0; c < 3; c++) {
+              str += this.state[`${f}_${r}_${c}`];
+            }
+          }
+        }
+        return str;
+      }
+
+      async solve() {
+        const kStr = this.getKociembaString();
+        const statusEl = document.getElementById('solution-status');
+        statusEl.innerText = 'Calculating solution...';
+
+        try {
+          const res = await fetch(`/api/solve?cube=${kStr}`);
+          const data = await res.json();
+          if (data.status === 'success') {
+            this.solutionMoves = data.moves;
+            this.solutionStep = 0;
+            this.renderSolutionUI();
+            statusEl.innerText = `Solved in ${data.move_count} moves!`;
+          } else {
+            statusEl.innerText = 'Error: ' + data.message;
+            alert('Solver error: ' + data.message);
+          }
+        } catch (e) {
+          // If server is not running, provide fallback notification
+          statusEl.innerText = 'Local server offline. Run: python server.py';
+          alert('To solve using the Two-Phase Kociemba engine, make sure the Python server is running:\n\nRun: python server.py\n\nThen click Solve again.');
+        }
+      }
+
+      renderSolutionUI() {
+        document.getElementById('solution-count-label').innerText = `Moves: ${this.solutionMoves.length}`;
+        document.getElementById('player-step-label').innerText = `Step: ${this.solutionStep} / ${this.solutionMoves.length}`;
+
+        const container = document.getElementById('moves-badges-list');
+        container.innerHTML = '';
+        this.solutionMoves.forEach((m, idx) => {
+          const badge = document.createElement('span');
+          badge.className = 'move-badge' + (idx === this.solutionStep ? ' active' : (idx < this.solutionStep ? ' done' : ''));
+          badge.innerText = m;
+          badge.id = `badge-${idx}`;
+          badge.onclick = () => this.jumpToStep(idx);
+          container.appendChild(badge);
+        });
+      }
+
+      togglePlay() {
+        if (this.isPlaying) {
+          this.pause();
+        } else {
+          this.play();
+        }
+      }
+
+      play() {
+        if (this.solutionStep >= this.solutionMoves.length) {
+          this.solutionStep = 0;
+        }
+        this.isPlaying = true;
+        document.getElementById('play-pause-btn').innerText = '⏸ Pause';
+        this.playNext();
+      }
+
+      playNext() {
+        if (!this.isPlaying) return;
+        if (this.solutionStep >= this.solutionMoves.length) {
+          this.pause();
+          return;
+        }
+
+        const move = this.solutionMoves[this.solutionStep];
+        this.performMove(move, () => {
+          this.solutionStep++;
+          this.renderSolutionUI();
+          if (this.isPlaying) {
+            this.playTimer = setTimeout(() => this.playNext(), 200);
+          }
+        });
+      }
+
+      pause() {
+        this.isPlaying = false;
+        clearTimeout(this.playTimer);
+        document.getElementById('play-pause-btn').innerText = '▶ Play';
+      }
+
+      stepForward() {
+        this.pause();
+        if (this.solutionStep < this.solutionMoves.length) {
+          const move = this.solutionMoves[this.solutionStep];
+          this.performMove(move, () => {
+            this.solutionStep++;
+            this.renderSolutionUI();
+          });
+        }
+      }
+
+      stepBackward() {
+        this.pause();
+        if (this.solutionStep > 0) {
+          this.solutionStep--;
+          const move = this.solutionMoves[this.solutionStep];
+          const invMove = move.endsWith("'") ? move.slice(0, -1) : (move.endsWith("2") ? move : move + "'");
+          this.performMove(invMove, () => {
+            this.renderSolutionUI();
+          });
+        }
+      }
+
+      jumpToStep(target) {
+        this.pause();
+        // Step forward or backward to reach target
+        const diff = target - this.solutionStep;
+        if (diff > 0) {
+          for (let i = 0; i < diff; i++) this.stepForward();
+        } else if (diff < 0) {
+          for (let i = 0; i < -diff; i++) this.stepBackward();
+        }
+      }
+
+      clearSolution() {
+        this.solutionMoves = [];
+        this.solutionStep = 0;
+        this.pause();
+        document.getElementById('solution-count-label').innerText = 'Moves: 0';
+        document.getElementById('player-step-label').innerText = 'Step: 0 / 0';
+        document.getElementById('moves-badges-list').innerHTML = '<span style="color: var(--text-muted); font-size: 0.75rem;">Cube is solved!</span>';
+      }
+    }
+
+    const app = new RubiksCubeApp();
+  </script>
+</body>
+</html>

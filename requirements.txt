@@ -1,0 +1,4 @@
+# Rubik's Cube Solver Dependencies
+# Note: The Kociemba Two-Phase solver and Web server use Python standard library.
+# Optional numpy for fast array calculations if needed.
+numpy>=1.24.0
