@@ -323,27 +323,60 @@ header {
   transform: translateX(-50%) scale(1.06);
 }
 
-/* Floating Brush HUD */
-.canvas-brush-hud {
+/* Stage Bottom Bar (Unified non-overlapping horizontal strip) */
+.stage-bottom-bar {
   position: absolute;
   bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(15, 23, 42, 0.88);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  left: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 25;
+}
+
+.stage-status-tag {
+  background: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  pointer-events: auto;
+  white-space: nowrap;
+}
+
+.status-dot-active {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 8px var(--success);
+  display: inline-block;
+}
+
+/* Floating Brush HUD (Centered inside bottom bar or stage) */
+.canvas-brush-hud {
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 20px;
-  padding: 6px 14px;
+  padding: 5px 14px;
   font-size: 0.76rem;
   font-weight: 600;
   color: #f1f5f9;
   display: flex;
   align-items: center;
   gap: 7px;
-  z-index: 25;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
-  pointer-events: none;
-  animation: fadeIn 0.2s;
+  pointer-events: auto;
   white-space: nowrap;
 }
 
@@ -356,27 +389,30 @@ header {
   box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
 }
 
-.stage-footer {
-  position: absolute;
-  bottom: 8px;
-  left: 0;
-  right: 0;
+/* Merged Information Footer for Desktop Studio */
+.app-info-footer {
   display: flex;
-  justify-content: center;
-  pointer-events: none;
-  z-index: 20;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-top: auto;
+  flex-shrink: 0;
 }
 
-.stage-hint-pill {
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 20px;
-  padding: 4px 14px;
-  font-size: 0.72rem;
-  color: #cbd5e1;
-  font-weight: 600;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+.info-footer-icon {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.info-footer-text strong {
+  color: #e2e8f0;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -1284,8 +1320,11 @@ header {
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   }
 
-  .stage-footer {
-    display: none;
+  .stage-bottom-bar {
+    justify-content: center;
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
   }
 
   .floating-cam-btn {

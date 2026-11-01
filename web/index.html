@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>3D Rubik's Cube Solver &amp; Studio</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧊</text></svg>">
-  <link rel="stylesheet" href="css/style.css?v=2.7">
+  <link rel="stylesheet" href="css/style.css?v=2.8">
 </head>
 <body>
 
@@ -64,7 +64,7 @@
 
   <!-- Page Body: Sticky 3D Cube + Scrollable Studios -->
   <div id="page-body">
-    <!-- Section 1: Sticky 3D Interactive Stage -->
+    <!-- Section 1: 3D Interactive Stage -->
     <section id="hero-stage">
     <div id="canvas-container">
       <div class="canvas-hint hide-mobile">🖐️ Drag to orbit • Scroll to zoom • Tap sticker to paint</div>
@@ -72,16 +72,20 @@
         📷 Recenter
       </button>
       <div id="active-move-display">•</div>
+      <div id="toast"></div>
+    </div>
+    <!-- Stage Bottom Bar: Unified Non-Overlapping Status & Brush Display -->
+    <div class="stage-bottom-bar">
+      <div class="stage-status-tag hide-mobile">
+        <span class="status-dot-active"></span>
+        <span>Two-Phase Kociemba Engine</span>
+      </div>
       <div id="canvas-brush-hud" class="canvas-brush-hud" style="display:none;">
         <span class="hud-swatch-dot" id="hud-swatch-dot"></span>
         <span id="hud-brush-text">Brush: White (U) • Tap 3D sticker to paint</span>
       </div>
-      <div id="toast"></div>
-    </div>
-    <!-- Stage Bottom Bar -->
-    <div class="stage-footer">
-      <div class="stage-hint-pill">
-        <span>💫 Interactive 3D Cube</span> • Scroll down to explore studios &amp; controls ⬇
+      <div class="stage-status-tag hide-mobile">
+        <span>⚡ Optimal Path &le; 20 Moves</span>
       </div>
     </div>
   </section>
@@ -255,6 +259,14 @@
       </div>
     </article>
 
+    <!-- Merged Engine & Algorithm Footer (Desktop & Tablet) -->
+    <footer class="app-info-footer hide-mobile">
+      <span class="info-footer-icon">⚡</span>
+      <span class="info-footer-text">
+        <strong>Two-Phase Kociemba Engine:</strong> Computes mathematically optimal shortest solutions (&le; 20 moves).
+      </span>
+    </footer>
+
   </main>
   </div> <!-- /#page-body -->
 
@@ -293,10 +305,10 @@
 
   <script src="js/three.min.js"></script>
   <script src="js/OrbitControls.js"></script>
-  <script src="js/cube3d.js?v=2.7"></script>
-  <script src="js/painter.js?v=2.7"></script>
-  <script src="js/player.js?v=2.7"></script>
-  <script src="js/app.js?v=2.7"></script>
+  <script src="js/cube3d.js?v=2.8"></script>
+  <script src="js/painter.js?v=2.8"></script>
+  <script src="js/player.js?v=2.8"></script>
+  <script src="js/app.js?v=2.8"></script>
 
 </body>
 </html>
