@@ -440,25 +440,46 @@ class App {
 
   // ─── Mobile Segmented Tab Switcher ──────────────────────────────────────────
   switchMobileTab(tab) {
-    const playerRow = document.getElementById('row-player-controls');
-    const movesRow  = document.getElementById('row-moves-controls');
-    const tabPlayer = document.getElementById('tab-btn-player');
-    const tabMoves  = document.getElementById('tab-btn-moves');
-    const tabNet    = document.getElementById('tab-btn-net');
+    const playerRow  = document.getElementById('row-player-controls');
+    const paint3dRow = document.getElementById('row-paint3d-controls');
+    const movesRow   = document.getElementById('row-moves-controls');
+    const tabPlayer  = document.getElementById('tab-btn-player');
+    const tabPaint3d = document.getElementById('tab-btn-paint3d');
+    const tabMoves   = document.getElementById('tab-btn-moves');
+    const tabNet     = document.getElementById('tab-btn-net');
+    const brushHud   = document.getElementById('canvas-brush-hud');
+
+    // Hide all rows first
+    [playerRow, paint3dRow, movesRow].forEach(row => {
+      if (row) row.classList.add('mobile-tab-hidden');
+    });
+    // Deactivate tabs
+    [tabPlayer, tabPaint3d, tabMoves, tabNet].forEach(t => {
+      if (t) t.classList.remove('active');
+    });
+    // Hide brush HUD by default
+    if (brushHud) brushHud.style.display = 'none';
 
     if (tab === 'player') {
       if (playerRow) playerRow.classList.remove('mobile-tab-hidden');
-      if (movesRow)  movesRow.classList.add('mobile-tab-hidden');
       if (tabPlayer) tabPlayer.classList.add('active');
-      if (tabMoves)  tabMoves.classList.remove('active');
-      if (tabNet)    tabNet.classList.remove('active');
+    } else if (tab === 'paint3d') {
+      if (paint3dRow) paint3dRow.classList.remove('mobile-tab-hidden');
+      if (tabPaint3d) tabPaint3d.classList.add('active');
+      if (brushHud) brushHud.style.display = 'flex';
+      // Refresh painter sync & brush
+      if (this.painter) {
+        this.painter.syncFrom3D();
+        this.painter.selectColor(this.painter.selectedColor);
+      }
     } else if (tab === 'moves') {
-      if (playerRow) playerRow.classList.add('mobile-tab-hidden');
-      if (movesRow)  movesRow.classList.remove('mobile-tab-hidden');
-      if (tabPlayer) tabPlayer.classList.remove('active');
-      if (tabMoves)  tabMoves.classList.add('active');
-      if (tabNet)    tabNet.classList.remove('active');
+      if (movesRow) movesRow.classList.remove('mobile-tab-hidden');
+      if (tabMoves) tabMoves.classList.add('active');
     }
+  }
+
+  switchTab(tab) {
+    this.switchMobileTab(tab);
   }
 
   // ─── Mobile: toggle 2D panel slide-over ──────────────────────────────────────

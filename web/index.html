@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>3D Rubik's Cube Solver</title>
-  <link rel="stylesheet" href="css/style.css?v=2.2">
+  <link rel="stylesheet" href="css/style.css?v=2.3">
 </head>
 <body>
 
@@ -67,6 +67,10 @@
     <div id="canvas-container">
       <div class="canvas-hint hide-mobile">Drag to orbit • Scroll to zoom • Click sticker to paint</div>
       <div id="active-move-display">•</div>
+      <div id="canvas-brush-hud" class="canvas-brush-hud" style="display:none;">
+        <span class="hud-swatch-dot" id="hud-swatch-dot"></span>
+        <span id="hud-brush-text">Brush: White (U) • Tap 3D sticker to paint</span>
+      </div>
       <div id="toast"></div>
     </div>
 
@@ -117,11 +121,14 @@
       <button class="mobile-tab-btn active" id="tab-btn-player" onclick="app.switchMobileTab('player')">
         ▶ Solution
       </button>
+      <button class="mobile-tab-btn" id="tab-btn-paint3d" onclick="app.switchMobileTab('paint3d')">
+        🎨 3D Paint
+      </button>
       <button class="mobile-tab-btn" id="tab-btn-moves" onclick="app.switchMobileTab('moves')">
         🖐️ Turns
       </button>
       <button class="mobile-tab-btn" id="tab-btn-net" onclick="app.toggle2DPanel()">
-        🎨 2D Net
+        🗺️ 2D Net
       </button>
     </div>
 
@@ -155,7 +162,26 @@
       </div>
     </div>
 
-    <!-- Row 2: Manual Moves Grid -->
+    <!-- Row 2: Dedicated 3D Color Selection & Live Counter List (Interactive & Spacious) -->
+    <div class="controls-row controls-row-paint3d mobile-tab-hidden" id="row-paint3d-controls">
+      <div class="paint3d-top-bar">
+        <div class="paint3d-brush-pill" id="paint3d-brush-info">
+          <span class="brush-dot" id="brush-dot" style="background:#f5f5f7;"></span>
+          <span class="brush-title" id="brush-title">Brush: <strong>White (U)</strong></span>
+        </div>
+        <div class="paint3d-balance-bar" id="paint3d-balance-msg">
+          <span class="status-ok">✓ 54/54 Balanced</span>
+        </div>
+        <div class="paint3d-actions">
+          <button class="btn btn-sm" id="btn-undo-3d" onclick="app.painter.undo()" disabled title="Undo last paint">↩ Undo</button>
+          <button class="btn btn-sm" id="btn-revert-3d" onclick="app.painter.revertAll()" disabled title="Revert all stickers">↺ Revert</button>
+        </div>
+      </div>
+      <!-- 6 Interactive 3D Color Cards with Live Counters -->
+      <div class="paint3d-cards-grid" id="paint3d-cards-grid"></div>
+    </div>
+
+    <!-- Row 3: Manual Moves Grid -->
     <div class="controls-row controls-row-moves mobile-tab-hidden" id="row-moves-controls">
       <div class="manual-turns-label hide-mobile" style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">Manual Turns:</div>
       <div class="moves-grid" id="moves-grid"></div>
@@ -195,10 +221,10 @@
 
   <script src="js/three.min.js"></script>
   <script src="js/OrbitControls.js"></script>
-  <script src="js/cube3d.js?v=2.2"></script>
-  <script src="js/painter.js?v=2.2"></script>
-  <script src="js/player.js?v=2.2"></script>
-  <script src="js/app.js?v=2.2"></script>
+  <script src="js/cube3d.js?v=2.3"></script>
+  <script src="js/painter.js?v=2.3"></script>
+  <script src="js/player.js?v=2.3"></script>
+  <script src="js/app.js?v=2.3"></script>
 
 </body>
 </html>

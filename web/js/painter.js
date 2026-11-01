@@ -23,14 +23,24 @@ class UnifiedPainter {
     this.countersContainer = document.getElementById('counters-container');
     this.gridContainer = document.getElementById('net-2d-container');
 
+    // 3D Paint Elements
+    this.paint3dGrid = document.getElementById('paint3d-cards-grid');
+    this.brushDot = document.getElementById('brush-dot');
+    this.brushTitle = document.getElementById('brush-title');
+    this.balanceMsg = document.getElementById('paint3d-balance-msg');
+    this.hudDot = document.getElementById('hud-swatch-dot');
+    this.hudText = document.getElementById('hud-brush-text');
+
     this.cellElements = {};
     this.paletteButtons = {};
+    this.paint3dCards = {};
+    this.paint3dBadges = {};
 
     this.initUI();
   }
 
   initUI() {
-    // 1. Build Color Palette
+    // 1. Build Color Palette (in 2D Net Panel)
     if (this.paletteContainer) {
       this.paletteContainer.innerHTML = '';
       PALETTE_COLORS.forEach((col, idx) => {
@@ -43,6 +53,31 @@ class UnifiedPainter {
         btn.onclick = () => this.selectColor(col.key);
         this.paletteContainer.appendChild(btn);
         this.paletteButtons[col.key] = btn;
+      });
+    }
+
+    // 1B. Build Dedicated 3D Interactive Color Cards Grid
+    if (this.paint3dGrid) {
+      this.paint3dGrid.innerHTML = '';
+      PALETTE_COLORS.forEach((col, idx) => {
+        const card = document.createElement('div');
+        card.className = 'paint3d-color-card' + (col.key === this.selectedColor ? ' selected' : '');
+        card.setAttribute('data-key', col.key);
+
+        card.innerHTML = `
+          <div class="color-card-swatch" style="background-color: ${col.hex}; color: ${col.text};">
+            <span class="color-key-badge">${col.key}</span>
+          </div>
+          <div class="color-card-meta">
+            <div class="color-card-name">${col.name}</div>
+            <div class="color-card-count count-ok" id="count-badge-${col.key}">9/9 ✓</div>
+          </div>
+        `;
+
+        card.onclick = () => this.selectColor(col.key);
+        this.paint3dGrid.appendChild(card);
+        this.paint3dCards[col.key] = card;
+        this.paint3dBadges[col.key] = card.querySelector(`#count-badge-${col.key}`);
       });
     }
 
@@ -126,22 +161,50 @@ class UnifiedPainter {
 
   selectColor(colorKey) {
     this.selectedColor = colorKey;
+    const colObj = PALETTE_COLORS.find(p => p.key === colorKey) || PALETTE_COLORS[0];
+
+    // 1. Toggle 2D palette buttons
     Object.keys(this.paletteButtons).forEach(k => {
       this.paletteButtons[k].classList.toggle('selected', k === colorKey);
     });
+
+    // 2. Toggle 3D interactive color cards
+    Object.keys(this.paint3dCards).forEach(k => {
+      this.paint3dCards[k].classList.toggle('selected', k === colorKey);
+    });
+
+    // 3. Update 3D Top Bar Brush Indicator
+    if (this.brushDot) this.brushDot.style.backgroundColor = colObj.hex;
+    if (this.brushTitle) {
+      this.brushTitle.innerHTML = `Brush: <strong>${colObj.name} (${colObj.key})</strong>`;
+    }
+
+    // 4. Update Floating Canvas Brush HUD
+    if (this.hudDot) this.hudDot.style.backgroundColor = colObj.hex;
+    if (this.hudText) {
+      this.hudText.innerHTML = `Brush: <strong>${colObj.name} (${colObj.key})</strong> • Tap 3D sticker to paint`;
+    }
   }
 
   updateUndoButtons() {
     const btnUndo = document.getElementById('btn-undo-paint');
     const btnRevert = document.getElementById('btn-revert-paint');
+    const btnUndo3D = document.getElementById('btn-undo-3d');
+    const btnRevert3D = document.getElementById('btn-revert-3d');
+
     const hasHistory = this.paintHistory && this.paintHistory.length > 0;
-    if (btnUndo) {
-      btnUndo.disabled = !hasHistory;
-      btnUndo.textContent = hasHistory ? `↩ Undo (${this.paintHistory.length})` : '↩ Undo';
-    }
-    if (btnRevert) {
-      btnRevert.disabled = !hasHistory;
-    }
+    const undoText = hasHistory ? `↩ Undo (${this.paintHistory.length})` : '↩ Undo';
+
+    [btnUndo, btnUndo3D].forEach(btn => {
+      if (btn) {
+        btn.disabled = !hasHistory;
+        btn.textContent = undoText;
+      }
+    });
+
+    [btnRevert, btnRevert3D].forEach(btn => {
+      if (btn) btn.disabled = !hasHistory;
+    });
   }
 
   clearHistory() {
@@ -305,24 +368,68 @@ class UnifiedPainter {
   }
 
   updateCounters() {
-    if (!this.app.cube3d || !this.countersContainer) return;
+    if (!this.app.cube3d) return false;
     const counts = { 'U': 0, 'D': 0, 'L': 0, 'R': 0, 'F': 0, 'B': 0 };
     const state = this.app.cube3d.getState();
     state.forEach(c => counts[c] = (counts[c] || 0) + 1);
 
-    this.countersContainer.innerHTML = '';
     let allValid = true;
+    const diffs = [];
 
+    // 1. Update 2D Panel Counters
+    if (this.countersContainer) {
+      this.countersContainer.innerHTML = '';
+      PALETTE_COLORS.forEach(col => {
+        const c = counts[col.key] || 0;
+        const ok = (c === 9);
+        if (!ok) allValid = false;
+
+        const item = document.createElement('div');
+        item.className = 'counter-item ' + (ok ? 'ok' : 'bad');
+        item.textContent = `${col.key}:${c}/9`;
+        this.countersContainer.appendChild(item);
+      });
+    }
+
+    // 2. Update 3D Interactive Color Cards with Rich Count Badges
     PALETTE_COLORS.forEach(col => {
       const c = counts[col.key] || 0;
-      const ok = (c === 9);
-      if (!ok) allValid = false;
+      const badge = this.paint3dBadges[col.key];
+      const card = this.paint3dCards[col.key];
 
-      const item = document.createElement('div');
-      item.className = 'counter-item ' + (ok ? 'ok' : 'bad');
-      item.textContent = `${col.key}:${c}/9`;
-      this.countersContainer.appendChild(item);
+      if (badge) {
+        if (c === 9) {
+          badge.className = 'color-card-count count-ok';
+          badge.innerHTML = `9/9 <span class="chk">✓</span>`;
+        } else if (c < 9) {
+          allValid = false;
+          const need = 9 - c;
+          badge.className = 'color-card-count count-under';
+          badge.innerHTML = `${c}/9 <span class="diff">(+${need})</span>`;
+          diffs.push(`+${need} ${col.name}`);
+        } else {
+          allValid = false;
+          const over = c - 9;
+          badge.className = 'color-card-count count-over';
+          badge.innerHTML = `${c}/9 <span class="diff">(-${over})</span>`;
+          diffs.push(`-${over} ${col.name}`);
+        }
+      }
+
+      if (card) {
+        card.classList.toggle('card-balanced', c === 9);
+      }
     });
+
+    // 3. Update 3D Balance Message
+    if (this.balanceMsg) {
+      if (allValid) {
+        this.balanceMsg.innerHTML = '<span class="status-ok">🎉 All 6 colors balanced (9/9) • Ready to solve!</span>';
+      } else {
+        const summary = diffs.slice(0, 3).join(', ') + (diffs.length > 3 ? '…' : '');
+        this.balanceMsg.innerHTML = `<span class="status-warn">⚠️ Needs: ${summary}</span>`;
+      }
+    }
 
     return allValid;
   }
