@@ -515,9 +515,10 @@ header {
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-  padding-bottom: 12px;
+  padding-bottom: 8px;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .card-title-group {
@@ -699,7 +700,8 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
+  flex-shrink: 0;
   width: 100%;
   flex-wrap: wrap;
 }
@@ -752,8 +754,9 @@ header {
 .total-balance-meter-container {
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 10px 14px;
+  border-radius: 10px;
+  padding: 7px 12px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -1271,31 +1274,74 @@ header {
 @media (min-width: 901px) {
   #page-body {
     flex-direction: row;
-    max-width: 1440px;
+    max-width: 1500px;
     margin: 0 auto;
     width: 100%;
-    gap: 20px;
-    padding: 14px 20px 20px;
+    gap: 16px;
+    padding: 10px 16px 14px;
   }
 
   #hero-stage {
-    flex: 1.25;
+    flex: 1.1;
     height: 100%;
     min-height: 0;
     max-height: none;
-    border-radius: 20px;
+    border-radius: 18px;
     border: 1px solid var(--panel-border);
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
   }
 
   #app-studios {
     flex: 1;
-    max-width: 580px;
+    max-width: 680px;
+    min-width: 420px;
     height: 100%;
     min-height: 0;
     max-height: none;
     padding: 0;
+    gap: 8px;
+  }
+
+  .studio-card {
+    padding: 12px 16px;
     gap: 10px;
+  }
+
+  .studio-card-header {
+    padding-bottom: 8px;
+    gap: 8px;
+  }
+
+  .paint3d-top-bar {
+    gap: 6px;
+  }
+
+  .total-balance-meter-container {
+    padding: 6px 12px;
+  }
+
+  .paint3d-cards-grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+  }
+
+  .paint3d-color-card {
+    padding: 8px 8px;
+    gap: 6px;
+  }
+
+  .color-card-swatch {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+  }
+
+  .color-card-name { font-size: 0.74rem; }
+  .color-card-count { font-size: 0.7rem; }
+
+  .app-info-footer {
+    padding: 6px 10px;
+    font-size: 0.72rem;
   }
 }
 
