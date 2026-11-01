@@ -125,10 +125,12 @@ class SolutionPlayer {
     if (this._lastScrolledStep !== this.currentStep && badges[this.currentStep]) {
       this._lastScrolledStep = this.currentStep;
       const target = badges[this.currentStep];
-      const containerRect = this.badgesContainer.getBoundingClientRect();
-      const targetRect = target.getBoundingClientRect();
-      const offset = (targetRect.left + targetRect.width / 2) - (containerRect.left + containerRect.width / 2);
-      this.badgesContainer.scrollBy({ left: offset, behavior: 'smooth' });
+      if (this.badgesContainer && this.badgesContainer.offsetParent !== null) {
+        const containerRect = this.badgesContainer.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        const offset = (targetRect.left + targetRect.width / 2) - (containerRect.left + containerRect.width / 2);
+        this.badgesContainer.scrollBy({ left: offset, behavior: 'smooth' });
+      }
     }
   }
 

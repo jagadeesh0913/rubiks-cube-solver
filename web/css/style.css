@@ -1007,7 +1007,7 @@ main {
   display: none;
 }
 
-/* Mobile Dropdown Menu */
+/* Mobile Dropdown Menu — hidden by default, toggled by JS .show class */
 .mobile-menu-popup {
   display: none;
 }
@@ -1065,54 +1065,64 @@ main {
   .hide-mobile { display: none !important; }
   .show-mobile { display: inline-flex !important; }
 
-  /* Single-Row Clean Top Header — Spacious & Unmerged */
+  /* ── HEADER: Single-Row Clean Top Bar ── */
   header {
-    height: 52px;
-    padding: 8px 14px;
+    height: 50px;
+    min-height: 50px;
+    max-height: 50px;
+    padding: 0 12px;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(12, 16, 26, 0.94);
-    backdrop-filter: blur(20px);
+    gap: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(180deg, rgba(15, 20, 35, 0.98) 0%, rgba(12, 16, 26, 0.96) 100%);
+    backdrop-filter: blur(24px);
     position: relative;
     z-index: 40;
+    flex-shrink: 0;
+  }
+
+  .logo-group {
+    flex-shrink: 0;
+    min-width: 0;
   }
 
   .logo-group h1 {
-    font-size: 0.98rem;
+    font-size: 0.92rem;
     font-weight: 800;
     white-space: nowrap;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
   }
 
   .logo-text {
-    background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
+    background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
-  /* Right Side: Only 3 Clean, Well-Spaced Buttons */
+  /* Right Side: 3 Compact, Well-Spaced Action Buttons */
   .mobile-top-bar {
     display: flex;
     align-items: center;
     gap: 8px;
     flex-wrap: nowrap;
+    flex-shrink: 0;
   }
 
   /* Glowing Primary Solve Pill */
   .btn-solve-glow {
     background: linear-gradient(135deg, #e63946 0%, #ff4d6d 100%) !important;
     color: #fff !important;
-    border: 1px solid rgba(255, 77, 109, 0.45) !important;
+    border: 1px solid rgba(255, 77, 109, 0.5) !important;
     border-radius: 20px !important;
     padding: 6px 14px !important;
     font-weight: 700 !important;
-    font-size: 0.82rem !important;
-    min-height: 35px;
-    box-shadow: 0 4px 14px rgba(230, 57, 70, 0.45);
+    font-size: 0.8rem !important;
+    min-height: 34px;
+    box-shadow: 0 3px 12px rgba(230, 57, 70, 0.4);
     transition: all 0.15s ease;
   }
 
@@ -1122,17 +1132,17 @@ main {
 
   /* Sleek Circular Glass Icon Buttons */
   .btn-icon {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
     border-radius: 50% !important;
     padding: 0 !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.08) !important;
-    border: 1px solid rgba(255, 255, 255, 0.14) !important;
-    font-size: 0.95rem;
+    background: rgba(255, 255, 255, 0.07) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    font-size: 0.92rem;
     cursor: pointer;
     transition: all 0.15s ease;
   }
@@ -1142,27 +1152,27 @@ main {
     background: rgba(255, 255, 255, 0.15) !important;
   }
 
-  /* Floating Dropdown Menu */
+  /* ── MOBILE DROPDOWN MENU ── */
   .mobile-menu-popup {
     position: absolute;
-    top: 56px;
-    right: 12px;
-    background: rgba(17, 24, 39, 0.96);
+    top: 54px;
+    right: 10px;
+    background: rgba(17, 24, 39, 0.97);
     backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 14px;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.75);
     padding: 6px;
-    display: none;
+    display: none;              /* Default hidden — JS toggles .show */
     flex-direction: column;
-    gap: 3px;
+    gap: 2px;
     z-index: 150;
-    min-width: 210px;
+    min-width: 200px;
     animation: menuSlideDown 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .mobile-menu-popup.show {
-    display: flex !important;
+    display: flex !important;   /* Only visible when JS adds .show */
   }
 
   @keyframes menuSlideDown {
@@ -1187,37 +1197,37 @@ main {
   }
 
   .mobile-menu-item:hover, .mobile-menu-item:active {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.1);
   }
 
-  /* Floating Recenter Button on Canvas */
+  /* ── FLOATING RECENTER BUTTON ── */
   .floating-cam-btn {
     position: absolute;
-    top: 14px;
-    right: 14px;
-    background: rgba(15, 23, 42, 0.68);
+    top: 12px;
+    right: 12px;
+    background: rgba(15, 23, 42, 0.65);
     backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 20px;
-    padding: 6px 13px;
-    font-size: 0.75rem;
+    padding: 5px 12px;
+    font-size: 0.72rem;
     font-weight: 700;
     color: #e2e8f0;
     display: inline-flex !important;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
     cursor: pointer;
     z-index: 25;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.35);
     transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .floating-cam-btn:active {
     transform: scale(0.93);
-    background: rgba(15, 23, 42, 0.92);
+    background: rgba(15, 23, 42, 0.88);
   }
 
-  /* Main Viewport: Canvas gets maximum breathing room */
+  /* ── MAIN VIEWPORT ── */
   main {
     flex-direction: column;
     position: relative;
@@ -1229,17 +1239,17 @@ main {
     min-height: 0;
     width: 100%;
     position: relative;
-    background: radial-gradient(circle at 50% 45%, rgba(30, 58, 138, 0.18) 0%, rgba(9, 10, 15, 0.98) 75%);
+    background: radial-gradient(circle at 50% 42%, rgba(30, 58, 138, 0.15) 0%, rgba(9, 10, 15, 0.98) 70%);
   }
 
-  /* 2D Panel: Clean Slide-Over Drawer with Dark Backdrop */
+  /* ── 2D PANEL: Slide-Over Drawer ── */
   #side-2d-panel {
     position: fixed;
     top: 0;
     right: 0;
     bottom: 0;
     width: 100%;
-    max-width: 380px;
+    max-width: 360px;
     transform: translateX(105%);
     transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 200;
@@ -1247,7 +1257,7 @@ main {
     background: rgba(13, 16, 23, 0.98);
     backdrop-filter: blur(20px);
     box-shadow: -8px 0 32px rgba(0, 0, 0, 0.8);
-    padding: 16px 16px 24px;
+    padding: 14px 14px 20px;
     overflow-y: auto;
   }
 
@@ -1257,25 +1267,25 @@ main {
 
   .btn-close-panel {
     padding: 7px 16px !important;
-    font-size: 0.86rem !important;
+    font-size: 0.84rem !important;
     font-weight: 700 !important;
-    background: rgba(255, 255, 255, 0.14) !important;
+    background: rgba(255, 255, 255, 0.12) !important;
     border-radius: 8px !important;
-    min-height: 36px;
+    min-height: 34px;
   }
 
   /* 2D Net in Drawer */
   .net-2d-grid {
-    grid-template-columns: repeat(4, 70px);
-    grid-template-rows: repeat(3, 70px);
-    gap: 6px;
+    grid-template-columns: repeat(4, 68px);
+    grid-template-rows: repeat(3, 68px);
+    gap: 5px;
   }
 
   .net-2d-face {
     grid-template-columns: repeat(3, 20px);
     grid-template-rows: repeat(3, 20px);
     gap: 2px;
-    padding: 3px;
+    padding: 2px;
   }
 
   .net-2d-cell {
@@ -1284,60 +1294,62 @@ main {
   }
 
   .palette-btn {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
     border-radius: 8px;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
   }
 
-  /* ── Bottom Controls Hub ── */
+  /* ── BOTTOM CONTROLS HUB ── */
   #bottom-panel {
-    padding: 8px 12px 10px;
+    padding: 6px 10px 8px;
     gap: 4px;
-    background: rgba(11, 14, 23, 0.96);
+    background: rgba(11, 14, 23, 0.97);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 18px 18px 0 0;
+    border-radius: 16px 16px 0 0;
     backdrop-filter: blur(20px);
-    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 -6px 28px rgba(0, 0, 0, 0.45);
     z-index: 20;
     flex-shrink: 0;
+    max-height: 45vh;         /* Never take more than 45% of viewport */
+    overflow-y: auto;
   }
 
   /* Segmented Mode Switcher */
   .mobile-tabs {
     display: flex;
-    background: rgba(15, 23, 42, 0.65);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 22px;
-    padding: 3px;
-    gap: 3px;
-    margin: 0 auto 6px;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 2px;
+    gap: 2px;
+    margin: 0 auto 4px;
     width: fit-content;
   }
 
   .mobile-tab-btn {
-    padding: 6px 14px;
-    border-radius: 18px;
-    font-size: 0.78rem;
+    padding: 5px 13px;
+    border-radius: 16px;
+    font-size: 0.76rem;
     font-weight: 700;
   }
 
   .mobile-tab-btn.active {
-    background: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.14);
     color: #fff;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
   }
 
   .mobile-tab-hidden {
     display: none !important;
   }
 
-  /* Solution Player Mode */
+  /* ── Solution Player Mode ── */
   .controls-row-player {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 4px;
     width: 100%;
   }
 
@@ -1345,62 +1357,65 @@ main {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    padding: 6px 10px;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 5px 8px;
     border-radius: 10px;
-    background: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.07);
     width: 100%;
     flex-shrink: 0;
   }
 
   .solution-info {
-    font-size: 0.76rem;
+    font-size: 0.74rem;
     flex: 1;
     min-width: 0;
+    width: auto;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   #btn-play-pause {
-    min-width: 78px;
-    padding: 6px 12px;
-    font-size: 0.82rem;
-    min-height: 36px;
+    min-width: 72px;
+    width: auto;
+    max-width: none;
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    min-height: 34px;
     white-space: nowrap;
     border-radius: 8px;
   }
 
   .solution-bar > .btn {
-    padding: 6px 10px;
-    min-height: 36px;
-    font-size: 0.86rem;
+    padding: 5px 9px;
+    min-height: 34px;
+    font-size: 0.84rem;
     border-radius: 8px;
   }
 
   .speed-control {
-    padding: 3px 8px;
-    gap: 5px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 8px;
+    padding: 2px 6px;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 6px;
   }
 
   .speed-slider {
-    width: 60px;
+    width: 55px;
   }
 
   .speed-val {
-    min-width: 38px;
-    font-size: 0.7rem;
+    min-width: 36px;
+    font-size: 0.68rem;
   }
 
   /* Scrollable Solution Badges */
   .moves-badges {
     width: 100%;
-    padding: 3px 0 2px;
-    gap: 4px;
+    padding: 2px 0;
+    gap: 3px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
@@ -1408,13 +1423,13 @@ main {
   .moves-badges::-webkit-scrollbar { display: none; }
 
   .move-badge {
-    padding: 4px 8px;
-    font-size: 0.75rem;
+    padding: 3px 7px;
+    font-size: 0.73rem;
     flex-shrink: 0;
-    border-radius: 6px;
+    border-radius: 5px;
   }
 
-  /* Manual Turns Mode: Clean 6-Column Grid */
+  /* ── Manual Turns Mode: Clean 6-Column Grid ── */
   .controls-row-moves {
     width: 100%;
     padding: 2px 0;
@@ -1423,59 +1438,90 @@ main {
   .moves-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    gap: 6px;
+    gap: 5px;
     width: 100%;
   }
 
   .move-btn {
-    padding: 9px 0;
-    font-size: 0.84rem;
+    padding: 8px 0;
+    font-size: 0.82rem;
     font-weight: 700;
     text-align: center;
-    min-height: 38px;
+    min-height: 36px;
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.07);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
   }
 
-  /* Celebration Modal Mobile */
-  .celebration-card {
-    padding: 24px 18px 18px;
-    border-radius: 16px;
-    margin: 12px;
+  .move-btn:active {
+    transform: scale(0.94);
+    background: rgba(255, 255, 255, 0.14);
   }
-  .celebration-title { font-size: 1.5rem; }
-  .celebration-emoji { font-size: 2.8rem; }
+
+  /* ── Toast on Mobile: top-centered, not overlapping header ── */
+  #toast {
+    top: 56px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 24px);
+    max-width: 380px;
+    font-size: 0.8rem;
+    padding: 8px 14px;
+    border-radius: 10px;
+    z-index: 1000;
+  }
+
+  /* ── Celebration Modal Mobile ── */
+  .celebration-card {
+    padding: 22px 16px 16px;
+    border-radius: 16px;
+    margin: 10px;
+  }
+  .celebration-title { font-size: 1.4rem; }
+  .celebration-emoji { font-size: 2.6rem; margin-bottom: 8px; }
+  .celebration-sub { font-size: 0.84rem; margin-bottom: 12px; }
+  .celebration-stats { gap: 8px; margin-bottom: 18px; }
+  .celeb-stat { padding: 8px 14px; min-width: 68px; }
+  .celeb-stat-value { font-size: 1.3rem; }
   .celebration-actions {
     flex-direction: column;
-    gap: 8px;
+    gap: 7px;
   }
   .celebration-actions .btn {
     width: 100%;
     justify-content: center;
     padding: 10px 14px;
-    font-size: 0.85rem;
-    min-height: 44px;
+    font-size: 0.84rem;
+    min-height: 42px;
     border-radius: 10px;
   }
 }
 
 /* ── Extra Small Phones (≤380px) ── */
 @media (max-width: 380px) {
-  .logo-group h1 { font-size: 0.85rem; }
-  .btn-solve-glow { padding: 5px 10px !important; font-size: 0.76rem !important; }
-  .btn-icon { width: 32px; height: 32px; min-width: 32px; font-size: 0.85rem; }
+  header { padding: 0 8px; height: 46px; min-height: 46px; max-height: 46px; }
+  .logo-group h1 { font-size: 0.82rem; }
+  .btn-solve-glow { padding: 5px 10px !important; font-size: 0.74rem !important; min-height: 30px; }
+  .btn-icon { width: 30px; height: 30px; min-width: 30px; font-size: 0.82rem; }
+
+  #bottom-panel { padding: 5px 8px 6px; }
+  .mobile-tab-btn { padding: 4px 10px; font-size: 0.72rem; }
+
   .net-2d-grid {
-    grid-template-columns: repeat(4, 62px);
-    grid-template-rows: repeat(3, 62px);
+    grid-template-columns: repeat(4, 60px);
+    grid-template-rows: repeat(3, 60px);
     gap: 4px;
   }
   .net-2d-face {
-    grid-template-columns: repeat(3, 18px);
-    grid-template-rows: repeat(3, 18px);
+    grid-template-columns: repeat(3, 17px);
+    grid-template-rows: repeat(3, 17px);
   }
   .net-2d-cell {
-    width: 18px;
-    height: 18px;
+    width: 17px;
+    height: 17px;
   }
+
+  .moves-grid { gap: 4px; }
+  .move-btn { padding: 7px 0; min-height: 32px; font-size: 0.78rem; }
 }

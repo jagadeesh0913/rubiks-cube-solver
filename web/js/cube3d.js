@@ -523,20 +523,24 @@ class Cube3D {
 
     this.container.addEventListener('pointerup', (e) => {
       const dist = Math.hypot(e.clientX - downX, e.clientY - downY);
-      if (dist < 6) {
+      if (dist < 8) {
         this.handleClick(e);
       }
     });
 
     this.container.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'touch') return; // Don't run hover raycasting during finger drag on mobile
       const rect = this.container.getBoundingClientRect();
       this.mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       this.mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
       this.checkHover();
     });
 
-    // Double-click empty canvas space to smoothly recenter and reset view
+    // Double-click or double-tap empty canvas space to smoothly recenter
     this.container.addEventListener('dblclick', (e) => {
+      const rect = this.container.getBoundingClientRect();
+      this.mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      this.mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
       this.raycaster.setFromCamera(this.mouse, this.camera);
       const intersects = this.raycaster.intersectObjects(this.stickers);
       if (intersects.length === 0) {
@@ -582,6 +586,9 @@ class Cube3D {
   }
 
   handleClick(e) {
+    const rect = this.container.getBoundingClientRect();
+    this.mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    this.mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
     this.raycaster.setFromCamera(this.mouse, this.camera);
     const intersects = this.raycaster.intersectObjects(this.stickers);
 

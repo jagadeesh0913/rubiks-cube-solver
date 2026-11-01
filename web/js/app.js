@@ -19,8 +19,11 @@ class App {
     // Initialize 3D Engine
     const container = document.getElementById('canvas-container');
     this.cube3d = new Cube3D(container, (hitMesh) => {
-      this.painter.handle3DStickerClick(hitMesh);
+      if (this.painter) {
+        this.painter.handle3DStickerClick(hitMesh);
+      }
     });
+    this.cube3d.app = this;
 
     // Unified Painter (Bidirectional 2D & 3D Sync)
     this.painter = new UnifiedPainter(this);
@@ -491,7 +494,7 @@ class App {
   // ─── Single Unified Notification (Strictly one popup message!) ──────────────
   notify(msg, type = 'info') {
     const panel = document.getElementById('side-2d-panel');
-    const isMobile = window.innerWidth <= 680;
+    const isMobile = window.innerWidth <= 768;
     const isPanelOpen = panel && panel.classList.contains('mobile-open');
 
     // On mobile when 2D panel is closed, show floating toast
