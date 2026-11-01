@@ -482,10 +482,24 @@ class App {
     this.switchMobileTab(tab);
   }
 
-  // ─── Mobile: toggle 2D panel slide-over ──────────────────────────────────────
+  scrollToSection(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ─── Jump or Toggle 2D panel ──────────────────────────────────────────────
   toggle2DPanel() {
     const panel = document.getElementById('side-2d-panel');
-    if (!panel) return;
+    if (!panel) {
+      this.scrollToSection('sec-net');
+      return;
+    }
     const isOpen = panel.classList.toggle('mobile-open');
 
     const tabNet = document.getElementById('tab-btn-net');
@@ -512,22 +526,10 @@ class App {
     }
   }
 
-  // ─── Single Unified Notification (Strictly one popup message!) ──────────────
+  // ─── Single Unified Notification (Floating Toast) ──────────────────────────
   notify(msg, type = 'info') {
-    const panel = document.getElementById('side-2d-panel');
-    const isMobile = window.innerWidth <= 768;
-    const isPanelOpen = panel && panel.classList.contains('mobile-open');
-
-    // On mobile when 2D panel is closed, show floating toast
-    if (isMobile && !isPanelOpen) {
-      this._showToast(msg, type);
-    } else {
-      // Primary display on the 2D panel frame
-      this._showPanelNotification(msg, type);
-      // Ensure floating toast is hidden so exactly ONE notification appears
-      const toast = document.getElementById('toast');
-      if (toast) toast.style.display = 'none';
-    }
+    this._showToast(msg, type);
+    this._showPanelNotification(msg, type);
   }
 
   showToast(msg, type = '') {

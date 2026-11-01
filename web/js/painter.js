@@ -56,7 +56,7 @@ class UnifiedPainter {
       });
     }
 
-    // 1B. Build Dedicated 3D Interactive Color Cards Grid
+    // 1B. Build Dedicated 3D Interactive Color Cards Grid with Live Mini Meters
     if (this.paint3dGrid) {
       this.paint3dGrid.innerHTML = '';
       PALETTE_COLORS.forEach((col, idx) => {
@@ -65,12 +65,17 @@ class UnifiedPainter {
         card.setAttribute('data-key', col.key);
 
         card.innerHTML = `
-          <div class="color-card-swatch" style="background-color: ${col.hex}; color: ${col.text};">
-            <span class="color-key-badge">${col.key}</span>
+          <div class="color-card-top">
+            <div class="color-card-swatch" style="background-color: ${col.hex}; color: ${col.text};">
+              <span class="color-key-badge">${col.key}</span>
+            </div>
+            <div class="color-card-meta">
+              <div class="color-card-name">${col.name}</div>
+              <div class="color-card-count count-ok" id="count-badge-${col.key}">9/9 ✓</div>
+            </div>
           </div>
-          <div class="color-card-meta">
-            <div class="color-card-name">${col.name}</div>
-            <div class="color-card-count count-ok" id="count-badge-${col.key}">9/9 ✓</div>
+          <div class="color-progress-track">
+            <div class="color-progress-fill fill-ok" id="progress-fill-${col.key}" style="width: 100%;"></div>
           </div>
         `;
 
@@ -391,11 +396,12 @@ class UnifiedPainter {
       });
     }
 
-    // 2. Update 3D Interactive Color Cards with Rich Count Badges
+    // 2. Update 3D Interactive Color Cards with Rich Count Badges & Progress Bars
     PALETTE_COLORS.forEach(col => {
       const c = counts[col.key] || 0;
       const badge = this.paint3dBadges[col.key];
       const card = this.paint3dCards[col.key];
+      const fill = document.getElementById(`progress-fill-${col.key}`);
 
       if (badge) {
         if (c === 9) {
@@ -416,10 +422,28 @@ class UnifiedPainter {
         }
       }
 
+      if (fill) {
+        const pct = Math.min(100, Math.round((c / 9) * 100));
+        fill.style.width = `${pct}%`;
+        fill.className = 'color-progress-fill ' + (c === 9 ? 'fill-ok' : (c < 9 ? 'fill-under' : 'fill-over'));
+      }
+
       if (card) {
         card.classList.toggle('card-balanced', c === 9);
       }
     });
+
+    // 2B. Total Balance Meter
+    const totalBalanceFill = document.getElementById('total-balance-fill');
+    const totalBalanceLabel = document.getElementById('total-balance-label');
+    if (totalBalanceFill) {
+      const balancedCount = PALETTE_COLORS.filter(col => counts[col.key] === 9).length;
+      const totalPct = Math.round((balancedCount / 6) * 100);
+      totalBalanceFill.style.width = `${totalPct}%`;
+      if (totalBalanceLabel) {
+        totalBalanceLabel.textContent = `${balancedCount}/6 Faces Balanced (${totalPct}%)`;
+      }
+    }
 
     // 3. Update 3D Balance Message
     if (this.balanceMsg) {

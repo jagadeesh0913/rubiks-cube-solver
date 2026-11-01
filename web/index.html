@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>3D Rubik's Cube Solver</title>
-  <link rel="stylesheet" href="css/style.css?v=2.3">
+  <title>3D Rubik's Cube Solver &amp; Studio</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧊</text></svg>">
+  <link rel="stylesheet" href="css/style.css?v=2.4">
 </head>
 <body>
 
-  <!-- Top Navigation Header -->
+  <!-- Sticky Top Navigation Bar -->
   <header>
     <div class="logo-group">
       <h1>🧊 <span class="logo-text">CUBE 3D</span></h1>
-      <div class="header-sub hide-mobile">2D &amp; 3D Views • Optimal Solver</div>
+      <span class="logo-badge">PRO SOLVER</span>
     </div>
 
     <!-- Desktop Header Actions -->
@@ -27,14 +28,14 @@
         ↺ Reset
       </button>
       <button class="btn" onclick="app.cube3d.resetView()" title="Reset 3D camera angle">
-        Reset View
+        📷 Recenter View
       </button>
       <button class="btn" id="btn-sticker-style" onclick="app.toggleStickerStyle()">
         Style: Circles
       </button>
     </div>
 
-    <!-- Mobile Header Actions (Clean, Spacious, Unmerged!) -->
+    <!-- Mobile Header Actions -->
     <div class="header-actions show-mobile mobile-top-bar">
       <button class="btn btn-primary btn-solve-glow" id="btn-solve" onclick="app.solveCube()" title="Calculate optimal solution">
         ⚡ Solve
@@ -53,7 +54,7 @@
         ↺ Reset to Solved
       </button>
       <button class="mobile-menu-item" onclick="app.cube3d.resetView(); app.closeMobileMenu();">
-        📷 Recenter View
+        📷 Recenter 3D View
       </button>
       <button class="mobile-menu-item" id="btn-sticker-style-mobile" onclick="app.toggleStickerStyle(); app.closeMobileMenu();">
         🎨 Sticker Style: Circles / Squares
@@ -61,11 +62,13 @@
     </div>
   </header>
 
-  <!-- Main Area: Simultaneous 3D Viewport + 2D Net Panel -->
-  <main>
-    <!-- 3D WebGL Canvas + overlaid hints -->
+  <!-- Section 1: Hero 3D Interactive Stage -->
+  <section id="hero-stage">
     <div id="canvas-container">
-      <div class="canvas-hint hide-mobile">Drag to orbit • Scroll to zoom • Click sticker to paint</div>
+      <div class="canvas-hint hide-mobile">🖐️ Drag to orbit • Scroll to zoom • Tap sticker to paint</div>
+      <button class="floating-cam-btn" onclick="app.cube3d.resetView()" title="Center Camera View">
+        📷 Recenter
+      </button>
       <div id="active-move-display">•</div>
       <div id="canvas-brush-hud" class="canvas-brush-hud" style="display:none;">
         <span class="hud-swatch-dot" id="hud-swatch-dot"></span>
@@ -73,120 +76,183 @@
       </div>
       <div id="toast"></div>
     </div>
-
-    <!-- Right: 2D Flat Net Panel -->
-    <aside id="side-2d-panel">
-      <div class="side-header">
-        <div class="side-title">
-          <span>🗺️ 2D Flat Net &amp; Painter</span>
-          <span class="side-badge">LIVE SYNC</span>
-        </div>
-        <button class="btn show-mobile btn-close-panel" onclick="app.toggle2DPanel()">✕ Done</button>
-      </div>
-
-      <!-- 2D Panel Notification Banner -->
-      <div id="panel-notification" class="panel-notification" style="display:none;"></div>
-
-      <div class="side-sub">
-        Tap any cell on the <strong>2D net</strong> OR any sticker on the <strong>3D cube</strong> to paint.
-      </div>
-
-      <!-- Color Palette -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
-        <span style="font-size: 0.78rem; font-weight: 700; color: #fbbf24;">Brush Color:</span>
-        <div style="display: flex; gap: 6px;">
-          <button class="btn" id="btn-undo-paint" style="padding: 4px 8px; font-size: 0.75rem;" onclick="app.painter.undo()" disabled title="Undo last paint action">↩ Undo</button>
-          <button class="btn" id="btn-revert-paint" style="padding: 4px 8px; font-size: 0.75rem;" onclick="app.painter.revertAll()" disabled title="Revert all painted stickers">↺ Revert</button>
-        </div>
-      </div>
-      <div class="paint-palette" id="palette-container"></div>
-
-      <!-- 2D Unfolded Net Grid -->
-      <div id="net-2d-container"></div>
-
-      <!-- Color Counters -->
-      <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">
-        Sticker Counts (9 of each required to solve):
-      </div>
-      <div class="paint-counters" id="counters-container"></div>
-    </aside>
-
-  </main>
-
-  <!-- Bottom Controls Panel -->
-  <div id="bottom-panel">
-
-    <!-- Mobile Segmented Tab Switcher (Mobile Only) -->
-    <div class="mobile-tabs show-mobile">
-      <button class="mobile-tab-btn active" id="tab-btn-player" onclick="app.switchMobileTab('player')">
-        ▶ Solution
-      </button>
-      <button class="mobile-tab-btn" id="tab-btn-paint3d" onclick="app.switchMobileTab('paint3d')">
-        🎨 3D Paint
-      </button>
-      <button class="mobile-tab-btn" id="tab-btn-moves" onclick="app.switchMobileTab('moves')">
-        🖐️ Turns
-      </button>
-      <button class="mobile-tab-btn" id="tab-btn-net" onclick="app.toggle2DPanel()">
-        🗺️ 2D Net
-      </button>
-    </div>
-
-    <!-- Row 1: Solution Bar & Move Badges -->
-    <div class="controls-row controls-row-player" id="row-player-controls">
-      <div class="solution-bar">
-        <span class="solution-info" id="solution-info-label">Solution: Ready</span>
-        <span class="solution-step hide-mobile" id="solution-step-label">0 / 0</span>
-
-        <button class="btn" style="padding: 6px 11px;" onclick="app.player.stepBackward()" title="Step Backward">⏮</button>
-        <button class="btn btn-primary" id="btn-play-pause" style="padding: 6px 16px;" onclick="app.player.togglePlay()">▶ Start</button>
-        <button class="btn" style="padding: 6px 11px;" onclick="app.player.stepForward()" title="Step Forward">⏭</button>
-
-        <div class="speed-control">
-          <label for="speed-slider" style="font-size: 0.74rem; color: var(--text-muted);">Speed:</label>
-          <input type="range" class="speed-slider" id="speed-slider" min="50" max="10000" step="50" value="300">
-          <span class="speed-val" id="speed-val">300ms</span>
-        </div>
-
-        <div class="speed-presets hide-mobile">
-          <button class="btn" style="padding:2px 6px; font-size:0.72rem;" onclick="app.player.setSpeed(100)">⚡0.1s</button>
-          <button class="btn" style="padding:2px 6px; font-size:0.72rem;" onclick="app.player.setSpeed(300)">0.3s</button>
-          <button class="btn" style="padding:2px 6px; font-size:0.72rem;" onclick="app.player.setSpeed(1500)">🐢1.5s</button>
-          <button class="btn" style="padding:2px 6px; font-size:0.72rem;" onclick="app.player.setSpeed(5000)">5s</button>
-          <button class="btn" style="padding:2px 6px; font-size:0.72rem;" onclick="app.player.setSpeed(10000)">10s</button>
-        </div>
-      </div>
-
-      <div class="moves-badges" id="moves-badges-list">
-        <span style="color: var(--text-muted); font-size: 0.78rem;">Click "⚡ Solve" to calculate optimal moves</span>
+    <!-- Stage Bottom Bar -->
+    <div class="stage-footer">
+      <div class="stage-hint-pill">
+        <span>💫 Interactive 3D Cube</span> • Scroll down to explore studios &amp; controls ⬇
       </div>
     </div>
+  </section>
 
-    <!-- Row 2: Dedicated 3D Color Selection & Live Counter List (Interactive & Spacious) -->
-    <div class="controls-row controls-row-paint3d mobile-tab-hidden" id="row-paint3d-controls">
-      <div class="paint3d-top-bar">
-        <div class="paint3d-brush-pill" id="paint3d-brush-info">
-          <span class="brush-dot" id="brush-dot" style="background:#f5f5f7;"></span>
-          <span class="brush-title" id="brush-title">Brush: <strong>White (U)</strong></span>
+  <!-- Section 2: Dynamic Studio Cards (Scrollable & Spacious) -->
+  <main id="app-studios">
+
+    <!-- Quick-Jump Studio Navigation Bar -->
+    <nav class="studio-nav-bar">
+      <button class="studio-nav-pill active" onclick="app.scrollToSection('sec-solution')">
+        ▶ Solution Player
+      </button>
+      <button class="studio-nav-pill" onclick="app.scrollToSection('sec-colors')">
+        🎨 3D Color Matrix
+      </button>
+      <button class="studio-nav-pill" onclick="app.scrollToSection('sec-turns')">
+        🖐️ Manual Turns
+      </button>
+      <button class="studio-nav-pill" onclick="app.scrollToSection('sec-net')">
+        🗺️ 2D Net View
+      </button>
+    </nav>
+
+    <!-- Studio Card 1: Solution & Playback Studio -->
+    <article class="studio-card" id="sec-solution">
+      <div class="studio-card-header">
+        <div class="card-title-group">
+          <span class="card-icon">⚡</span>
+          <h2>Solution &amp; Playback Studio</h2>
         </div>
-        <div class="paint3d-balance-bar" id="paint3d-balance-msg">
-          <span class="status-ok">✓ 54/54 Balanced</span>
+        <span class="solution-step" id="solution-step-label">0 / 0</span>
+      </div>
+
+      <div class="solution-bar-container">
+        <div class="solution-bar">
+          <span class="solution-info" id="solution-info-label">Solution: Ready</span>
+
+          <div class="playback-btn-group">
+            <button class="btn" onclick="app.player.stepBackward()" title="Step Backward">⏮</button>
+            <button class="btn btn-primary" id="btn-play-pause" onclick="app.player.togglePlay()">▶ Start</button>
+            <button class="btn" onclick="app.player.stepForward()" title="Step Forward">⏭</button>
+          </div>
+
+          <div class="speed-control">
+            <label for="speed-slider" style="font-size: 0.74rem; color: var(--text-muted);">Speed:</label>
+            <input type="range" class="speed-slider" id="speed-slider" min="50" max="10000" step="50" value="300">
+            <span class="speed-val" id="speed-val">300ms</span>
+          </div>
+
+          <div class="speed-presets">
+            <button class="btn btn-preset" onclick="app.player.setSpeed(100)">⚡0.1s</button>
+            <button class="btn btn-preset" onclick="app.player.setSpeed(300)">0.3s</button>
+            <button class="btn btn-preset" onclick="app.player.setSpeed(1500)">🐢1.5s</button>
+            <button class="btn btn-preset hide-mobile" onclick="app.player.setSpeed(5000)">5s</button>
+          </div>
+        </div>
+
+        <!-- Scrollable Move Badges Timeline -->
+        <div class="moves-badges-wrapper">
+          <div class="moves-badges" id="moves-badges-list">
+            <span style="color: var(--text-muted); font-size: 0.8rem;">Click "⚡ Find Solution" to calculate optimal moves</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Studio Card 2: Interactive 3D Color Matrix & Live Counter Hub -->
+    <article class="studio-card" id="sec-colors">
+      <div class="studio-card-header">
+        <div class="card-title-group">
+          <span class="card-icon">🎨</span>
+          <h2>3D Color Studio &amp; Live Counter Matrix</h2>
         </div>
         <div class="paint3d-actions">
           <button class="btn btn-sm" id="btn-undo-3d" onclick="app.painter.undo()" disabled title="Undo last paint">↩ Undo</button>
           <button class="btn btn-sm" id="btn-revert-3d" onclick="app.painter.revertAll()" disabled title="Revert all stickers">↺ Revert</button>
         </div>
       </div>
-      <!-- 6 Interactive 3D Color Cards with Live Counters -->
-      <div class="paint3d-cards-grid" id="paint3d-cards-grid"></div>
-    </div>
 
-    <!-- Row 3: Manual Moves Grid -->
-    <div class="controls-row controls-row-moves mobile-tab-hidden" id="row-moves-controls">
-      <div class="manual-turns-label hide-mobile" style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">Manual Turns:</div>
-      <div class="moves-grid" id="moves-grid"></div>
-    </div>
-  </div>
+      <!-- Active Brush & Balance Guidance Banner -->
+      <div class="paint3d-top-bar">
+        <div class="paint3d-brush-pill" id="paint3d-brush-info">
+          <span class="brush-dot" id="brush-dot" style="background:#f5f5f7;"></span>
+          <span class="brush-title" id="brush-title">Active Brush: <strong>White (U)</strong></span>
+        </div>
+        <div class="paint3d-balance-bar" id="paint3d-balance-msg">
+          <span class="status-ok">🎉 All 6 colors balanced (9/9) • Ready to solve!</span>
+        </div>
+      </div>
+
+      <!-- Overall 6-Face Balance Progress Bar -->
+      <div class="total-balance-meter-container">
+        <div class="total-balance-header">
+          <span style="font-size: 0.76rem; font-weight: 700; color: #cbd5e1;">Overall Cube Balance:</span>
+          <span style="font-size: 0.74rem; font-weight: 700; color: #10b981;" id="total-balance-label">6/6 Faces Balanced (100%)</span>
+        </div>
+        <div class="total-balance-track">
+          <div class="total-balance-fill" id="total-balance-fill" style="width: 100%;"></div>
+        </div>
+      </div>
+
+      <!-- 6 Interactive Color Cards with Dynamic Progress Meters -->
+      <div class="paint3d-cards-grid" id="paint3d-cards-grid"></div>
+    </article>
+
+    <!-- Studio Card 3: Manual Turns Keypad -->
+    <article class="studio-card" id="sec-turns">
+      <div class="studio-card-header">
+        <div class="card-title-group">
+          <span class="card-icon">🖐️</span>
+          <h2>Manual Turns &amp; Algorithm Keypad</h2>
+        </div>
+        <span style="font-size: 0.72rem; color: var(--text-muted);">Standard Singmaster Notation</span>
+      </div>
+      <div class="moves-grid-container">
+        <div class="moves-grid" id="moves-grid"></div>
+      </div>
+    </article>
+
+    <!-- Studio Card 4: 2D Flat Unfolded Net (Live Sync) -->
+    <article class="studio-card" id="sec-net">
+      <div class="studio-card-header">
+        <div class="card-title-group">
+          <span class="card-icon">🗺️</span>
+          <h2>2D Unfolded Flat Net (Live Synchronized)</h2>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <button class="btn btn-sm" id="btn-undo-paint" onclick="app.painter.undo()" disabled title="Undo last paint">↩ Undo</button>
+          <button class="btn btn-sm" id="btn-revert-paint" onclick="app.painter.revertAll()" disabled title="Revert all stickers">↺ Revert</button>
+        </div>
+      </div>
+
+      <div class="net-2d-embedded">
+        <!-- Palette & Counters -->
+        <div class="net-2d-header-row">
+          <div class="paint-palette" id="palette-container"></div>
+          <div class="paint-counters" id="counters-container"></div>
+        </div>
+        <!-- 2D Unfolded Net Grid -->
+        <div id="net-2d-container"></div>
+      </div>
+    </article>
+
+    <!-- Studio Card 5: Engine & Info -->
+    <article class="studio-card card-info">
+      <div class="studio-card-header">
+        <div class="card-title-group">
+          <span class="card-icon">ℹ️</span>
+          <h2>Two-Phase Kociemba Algorithm Engine</h2>
+        </div>
+      </div>
+      <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5;">
+        This solver runs an optimized Two-Phase Kociemba algorithm backend to calculate the absolute shortest path from any scrambled configuration to a complete solved cube in ≤ 20 moves.
+      </p>
+    </article>
+
+  </main>
+
+  <!-- Floating Mobile Quick-Action Dock -->
+  <aside class="floating-mobile-dock show-mobile">
+    <button class="dock-btn dock-btn-primary" onclick="app.solveCube()" title="Solve Cube">
+      ⚡ Solve
+    </button>
+    <button class="dock-btn" onclick="app.player.togglePlay()" title="Play / Pause">
+      ▶ Play
+    </button>
+    <button class="dock-btn" onclick="app.scrollToSection('sec-colors')" title="3D Color Matrix">
+      🎨 Colors
+    </button>
+    <button class="dock-btn" onclick="app.scrollToTop()" title="Back to 3D Cube">
+      ⬆ Top
+    </button>
+  </aside>
 
   <!-- ══ CELEBRATION MODAL ══ -->
   <div id="celebration-modal" class="celebration-overlay" style="display:none;">
@@ -221,10 +287,10 @@
 
   <script src="js/three.min.js"></script>
   <script src="js/OrbitControls.js"></script>
-  <script src="js/cube3d.js?v=2.3"></script>
-  <script src="js/painter.js?v=2.3"></script>
-  <script src="js/player.js?v=2.3"></script>
-  <script src="js/app.js?v=2.3"></script>
+  <script src="js/cube3d.js?v=2.4"></script>
+  <script src="js/painter.js?v=2.4"></script>
+  <script src="js/player.js?v=2.4"></script>
+  <script src="js/app.js?v=2.4"></script>
 
 </body>
 </html>
