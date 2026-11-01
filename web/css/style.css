@@ -733,12 +733,12 @@ header {
   font-size: 0.76rem;
   font-weight: 600;
   text-align: center;
-  padding: 4px 12px;
+  padding: 4px 10px;
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid var(--panel-border);
   flex: 1;
-  min-width: 200px;
+  min-width: 140px;
 }
 
 .status-ok { color: #10b981; }
@@ -784,11 +784,11 @@ header {
   box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
 }
 
-/* 6 Interactive Color Cards Grid */
+/* 6 Interactive Color Cards Grid — default: 3 columns (2 rows) */
 .paint3d-cards-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
   width: 100%;
 }
 
@@ -796,48 +796,76 @@ header {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 10px 12px;
+  padding: 12px 14px;
   background: rgba(255, 255, 255, 0.05);
   border: 1.5px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  border-radius: 14px;
   cursor: pointer;
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.paint3d-color-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+  background: radial-gradient(circle at 30% 40%, var(--card-glow, rgba(255,255,255,0.06)) 0%, transparent 70%);
+}
+
+.paint3d-color-card:hover::before {
+  opacity: 1;
 }
 
 .paint3d-color-card:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.09);
   border-color: rgba(255, 255, 255, 0.22);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
 }
 
 .paint3d-color-card:active {
-  transform: scale(0.96);
+  transform: scale(0.97);
 }
 
 .paint3d-color-card.selected {
   border-color: #ffffff !important;
-  background: rgba(255, 255, 255, 0.16) !important;
-  box-shadow: 0 0 16px rgba(255, 255, 255, 0.35);
-  transform: scale(1.02);
+  background: rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.3), 0 4px 16px rgba(0, 0, 0, 0.3);
+  transform: scale(1.01);
+}
+
+.paint3d-color-card.selected::before {
+  opacity: 1;
 }
 
 .color-card-top {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .color-card-swatch {
-  width: 28px;
-  height: 28px;
-  min-width: 28px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  border: 2px solid rgba(255, 255, 255, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.paint3d-color-card:hover .color-card-swatch {
+  transform: scale(1.08);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
 }
 
 .color-key-badge {
@@ -854,7 +882,7 @@ header {
 }
 
 .color-card-name {
-  font-size: 0.76rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: #f1f5f9;
   white-space: nowrap;
@@ -863,10 +891,10 @@ header {
 }
 
 .color-card-count {
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-family: monospace;
   font-weight: 700;
-  margin-top: 1px;
+  margin-top: 2px;
 }
 
 .color-card-count.count-ok { color: #10b981; }
@@ -1282,7 +1310,7 @@ header {
   }
 
   #hero-stage {
-    flex: 1.1;
+    flex: 1.4;
     height: 100%;
     min-height: 0;
     max-height: none;
@@ -1292,9 +1320,9 @@ header {
   }
 
   #app-studios {
-    flex: 1;
-    max-width: 680px;
-    min-width: 420px;
+    flex: 0.8;
+    max-width: 480px;
+    min-width: 340px;
     height: 100%;
     min-height: 0;
     max-height: none;
@@ -1303,13 +1331,13 @@ header {
   }
 
   .studio-card {
-    padding: 12px 16px;
-    gap: 10px;
+    padding: 10px 14px;
+    gap: 8px;
   }
 
   .studio-card-header {
-    padding-bottom: 8px;
-    gap: 8px;
+    padding-bottom: 6px;
+    gap: 6px;
   }
 
   .paint3d-top-bar {
@@ -1317,7 +1345,7 @@ header {
   }
 
   .total-balance-meter-container {
-    padding: 6px 12px;
+    padding: 6px 10px;
   }
 
   .paint3d-cards-grid {
@@ -1326,8 +1354,9 @@ header {
   }
 
   .paint3d-color-card {
-    padding: 10px 12px;
+    padding: 9px 10px;
     gap: 6px;
+    border-radius: 12px;
   }
 
   .color-card-swatch {
@@ -1336,7 +1365,7 @@ header {
     min-width: 26px;
   }
 
-  .color-card-name { font-size: 0.76rem; }
+  .color-card-name { font-size: 0.78rem; }
   .color-card-count { font-size: 0.72rem; }
 
   .app-info-footer {
@@ -1408,23 +1437,23 @@ header {
 
   .paint3d-cards-grid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 5px;
+    gap: 6px;
   }
 
   .paint3d-color-card {
-    padding: 6px 6px;
+    padding: 8px 8px;
     gap: 5px;
-    border-radius: 9px;
+    border-radius: 10px;
   }
 
   .color-card-swatch {
-    width: 20px;
-    height: 20px;
-    min-width: 20px;
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
   }
 
-  .color-card-name { font-size: 0.7rem; }
-  .color-card-count { font-size: 0.65rem; }
+  .color-card-name { font-size: 0.72rem; }
+  .color-card-count { font-size: 0.66rem; }
 
   .moves-grid {
     grid-template-columns: repeat(6, 1fr);
