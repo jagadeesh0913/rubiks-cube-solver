@@ -1321,23 +1321,23 @@ header {
   }
 
   .paint3d-cards-grid {
-    grid-template-columns: repeat(6, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
   }
 
   .paint3d-color-card {
-    padding: 8px 8px;
+    padding: 10px 12px;
     gap: 6px;
   }
 
   .color-card-swatch {
-    width: 24px;
-    height: 24px;
-    min-width: 24px;
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
   }
 
-  .color-card-name { font-size: 0.74rem; }
-  .color-card-count { font-size: 0.7rem; }
+  .color-card-name { font-size: 0.76rem; }
+  .color-card-count { font-size: 0.72rem; }
 
   .app-info-footer {
     padding: 6px 10px;
