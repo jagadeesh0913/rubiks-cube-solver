@@ -19,6 +19,9 @@ class App {
     // Initialize 3D Engine
     const container = document.getElementById('canvas-container');
     this.cube3d = new Cube3D(container, (hitMesh) => {
+      if (this.activeTab !== 'colors') {
+        this.switchTab('colors');
+      }
       if (this.painter) {
         this.painter.handle3DStickerClick(hitMesh);
       }
@@ -73,7 +76,7 @@ class App {
       });
     }
 
-    this.initScrollNav();
+    this.switchTab('colors');
   }
 
   // ─── Cube State Helpers ──────────────────────────────────────────────────────
@@ -239,7 +242,8 @@ class App {
     if (this.painter && this.painter.updateCounters) {
       const validCounts = this.painter.updateCounters();
       if (!validCounts) {
-        this.notify('⚠️ Cannot solve: Each of the 6 colors must have exactly 9 stickers. Check counters on the right!', 'warning');
+        this.switchTab('colors');
+        this.notify('⚠️ Cannot solve: Each of the 6 colors must have exactly 9 stickers. Check counters below!', 'warning');
         return;
       }
     }
@@ -254,6 +258,7 @@ class App {
         const moves = data.moves || [];
         this.originalState = kStr; // Save snapshot of pre-solve state
         this.player.setSolution(moves, data.duration_ms);
+        this.switchTab('solution');
         this.notify(`✅ Solution ready: ${moves.length} moves (${data.duration_ms}ms). Press ▶ Start!`, 'success');
         // Record when user is ready to solve (for timing)
         this._solveStartTime = null;
@@ -440,159 +445,80 @@ class App {
     if (menu) menu.classList.remove('show');
   }
 
-  // ─── Mobile Segmented Tab Switcher ──────────────────────────────────────────
-  switchMobileTab(tab) {
-    const playerRow  = document.getElementById('row-player-controls');
-    const paint3dRow = document.getElementById('row-paint3d-controls');
-    const movesRow   = document.getElementById('row-moves-controls');
-    const tabPlayer  = document.getElementById('tab-btn-player');
-    const tabPaint3d = document.getElementById('tab-btn-paint3d');
-    const tabMoves   = document.getElementById('tab-btn-moves');
-    const tabNet     = document.getElementById('tab-btn-net');
-    const brushHud   = document.getElementById('canvas-brush-hud');
+  // ─── Studio Mode Switcher (Zero Unnecessary Scrolling) ───────────────────────
+  switchTab(tab) {
+    this.activeTab = tab;
+    const secColors   = document.getElementById('sec-colors');
+    const secSolution = document.getElementById('sec-solution');
+    const secTurns    = document.getElementById('sec-turns');
+    const secNet      = document.getElementById('sec-net');
 
-    // Hide all rows first
-    [playerRow, paint3dRow, movesRow].forEach(row => {
-      if (row) row.classList.add('mobile-tab-hidden');
-    });
-    // Deactivate tabs
-    [tabPlayer, tabPaint3d, tabMoves, tabNet].forEach(t => {
-      if (t) t.classList.remove('active');
-    });
-    // Hide brush HUD by default
-    if (brushHud) brushHud.style.display = 'none';
+    const pillColors   = document.getElementById('tab-pill-colors');
+    const pillSolution = document.getElementById('tab-pill-solution');
+    const pillTurns    = document.getElementById('tab-pill-turns');
+    const pillNet      = document.getElementById('tab-pill-net');
 
-    if (tab === 'player') {
-      if (playerRow) playerRow.classList.remove('mobile-tab-hidden');
-      if (tabPlayer) tabPlayer.classList.add('active');
-    } else if (tab === 'paint3d') {
-      if (paint3dRow) paint3dRow.classList.remove('mobile-tab-hidden');
-      if (tabPaint3d) tabPaint3d.classList.add('active');
+    const brushHud     = document.getElementById('canvas-brush-hud');
+
+    const map = [
+      { id: 'colors',   sec: secColors,   pill: pillColors },
+      { id: 'solution', sec: secSolution, pill: pillSolution },
+      { id: 'turns',    sec: secTurns,    pill: pillTurns },
+      { id: 'net',      sec: secNet,      pill: pillNet },
+    ];
+
+    map.forEach(item => {
+      const isMatch = item.id === tab;
+      if (item.sec) {
+        if (isMatch) {
+          item.sec.classList.remove('tab-hidden');
+          item.sec.style.display = 'flex';
+        } else {
+          item.sec.classList.add('tab-hidden');
+          item.sec.style.display = 'none';
+        }
+      }
+      if (item.pill) {
+        if (isMatch) item.pill.classList.add('active');
+        else item.pill.classList.remove('active');
+      }
+    });
+
+    if (tab === 'colors') {
       if (brushHud) brushHud.style.display = 'flex';
-      // Refresh painter sync & brush
       if (this.painter) {
         this.painter.syncFrom3D();
-        this.painter.selectColor(this.painter.selectedColor);
+        this.painter.selectColor(this.painter.selectedColor || 'U');
       }
-    } else if (tab === 'moves') {
-      if (movesRow) movesRow.classList.remove('mobile-tab-hidden');
-      if (tabMoves) tabMoves.classList.add('active');
+    } else {
+      if (brushHud) brushHud.style.display = 'none';
     }
-  }
 
-  switchTab(tab) {
-    this.switchMobileTab(tab);
+    if (tab === 'net' && this.painter) {
+      this.painter.syncFrom3D();
+    }
+
+    // Trigger 3D canvas resize in case dimensions adjusted
+    if (this.cube3d && this.cube3d.onResize) {
+      requestAnimationFrame(() => this.cube3d.onResize());
+    }
   }
 
   scrollToSection(id) {
-    const el = document.getElementById(id);
-    if (!el) return;
-
-    const hero = document.getElementById('hero-stage');
-    const header = document.querySelector('header');
-    let offset = 70;
-
-    // Mobile offset: header + sticky 3D hero stage
-    if (window.innerWidth <= 900 && hero) {
-      const headerH = header ? header.offsetHeight : 52;
-      const heroH = hero.offsetHeight || 270;
-      offset = headerH + heroH + 12;
-    } else if (header) {
-      // Desktop: hero stage is sticky in left column, right column scrolls with header offset
-      offset = header.offsetHeight + 18;
-    }
-
-    const bodyRect = document.body.getBoundingClientRect().top;
-    const elementRect = el.getBoundingClientRect().top;
-    const elementPosition = elementRect - bodyRect;
-    const offsetPosition = Math.max(0, elementPosition - offset);
-
-    window.scrollTo({
-      top: offsetPosition,
-      behavior: 'smooth'
-    });
+    if (id === 'sec-colors') this.switchTab('colors');
+    else if (id === 'sec-solution') this.switchTab('solution');
+    else if (id === 'sec-turns') this.switchTab('turns');
+    else if (id === 'sec-net') this.switchTab('net');
   }
 
   scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  initScrollNav() {
-    const sections = ['sec-solution', 'sec-colors', 'sec-turns', 'sec-net'];
-    const navPills = document.querySelectorAll('.studio-nav-pill');
-    if (!navPills.length) return;
-
-    let ticking = false;
-    window.addEventListener('scroll', () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        ticking = false;
-        const hero = document.getElementById('hero-stage');
-        const header = document.querySelector('header');
-        let offset = 80;
-        if (window.innerWidth <= 900 && hero) {
-          const headerH = header ? header.offsetHeight : 52;
-          const heroH = hero.offsetHeight || 270;
-          offset = headerH + heroH + 40;
-        } else if (header) {
-          offset = header.offsetHeight + 40;
-        }
-
-        let currentSection = sections[0];
-        for (const id of sections) {
-          const el = document.getElementById(id);
-          if (el) {
-            const rect = el.getBoundingClientRect();
-            if (rect.top <= offset) {
-              currentSection = id;
-            }
-          }
-        }
-
-        navPills.forEach(pill => {
-          const attr = pill.getAttribute('onclick') || '';
-          if (attr.includes(currentSection)) {
-            pill.classList.add('active');
-          } else {
-            pill.classList.remove('active');
-          }
-        });
-      });
-    }, { passive: true });
+    const studios = document.getElementById('app-studios');
+    if (studios) studios.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // ─── Jump or Toggle 2D panel ──────────────────────────────────────────────
   toggle2DPanel() {
-    const panel = document.getElementById('side-2d-panel');
-    if (!panel) {
-      this.scrollToSection('sec-net');
-      return;
-    }
-    const isOpen = panel.classList.toggle('mobile-open');
-
-    const tabNet = document.getElementById('tab-btn-net');
-    if (tabNet) {
-      if (isOpen) tabNet.classList.add('active');
-      else tabNet.classList.remove('active');
-    }
-
-    // Add/remove dark backdrop so user can tap outside to close
-    let backdrop = document.getElementById('mobile-backdrop');
-    if (isOpen) {
-      if (!backdrop) {
-        backdrop = document.createElement('div');
-        backdrop.id = 'mobile-backdrop';
-        backdrop.style.cssText = [
-          'position:fixed', 'inset:0', 'background:rgba(0,0,0,0.65)',
-          'z-index:199', 'backdrop-filter:blur(4px)', 'animation:fadeIn 0.2s ease'
-        ].join(';');
-        backdrop.addEventListener('click', () => this.toggle2DPanel());
-        document.body.appendChild(backdrop);
-      }
-    } else {
-      if (backdrop) backdrop.remove();
-    }
+    this.switchTab('net');
   }
 
   // ─── Single Unified Notification (Floating Toast) ──────────────────────────

@@ -46,13 +46,13 @@
   background: rgba(255, 255, 255, 0.35);
 }
 
-/* ── Fluid, Scrollable, Dynamic Layout ── */
+/* ── Full-Viewport Fitted Layout (Zero Unnecessary Scrolling) ── */
 html, body {
-  min-height: 100%;
-  overflow-x: clip;
-  overflow-y: auto;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
+  height: 100%;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
 body {
@@ -65,12 +65,16 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════
-   PAGE BODY: FIXED 3D VIEWPORT & SCROLLABLE STUDIOS
+   PAGE BODY: 3D VIEWPORT (TOP) + ACTIVE STUDIO (BOTTOM)
 ═══════════════════════════════════════════════════ */
 #page-body {
+  flex: 1;
+  min-height: 0;
   width: 100%;
   position: relative;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -217,17 +221,17 @@ header {
    SECTION 1: HERO 3D STAGE
 ═══════════════════════════════════════════════════ */
 #hero-stage {
-  position: sticky;
-  top: 52px;
-  z-index: 40;
+  flex: 1 1 45%;
+  min-height: 200px;
+  max-height: 48vh;
   width: 100%;
-  height: clamp(240px, 36vh, 320px);
+  position: relative;
   background: radial-gradient(circle at 50% 50%, rgba(30, 58, 138, 0.28) 0%, rgba(8, 10, 18, 0.98) 75%);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.75);
+  box-shadow: 0 8px 24px -2px rgba(0, 0, 0, 0.65);
 }
 
 #canvas-container {
@@ -376,43 +380,51 @@ header {
 }
 
 /* ═══════════════════════════════════════════════════
-   SECTION 2: DYNAMIC STUDIOS CONTAINER (SCROLLABLE)
+   SECTION 2: DYNAMIC STUDIOS CONTAINER (FITTED)
 ═══════════════════════════════════════════════════ */
 #app-studios {
+  flex: 1 1 55%;
+  min-height: 0;
   width: 100%;
-  max-width: 960px;
+  max-width: 860px;
   margin: 0 auto;
-  padding: 20px 16px 90px;
+  padding: 8px 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 8px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Quick-Jump Studio Navigation Bar */
+/* Studio Mode Switcher Tabs */
 .studio-nav-bar {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  background: rgba(15, 23, 42, 0.6);
+  justify-content: space-between;
+  gap: 4px;
+  background: rgba(15, 23, 42, 0.72);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 30px;
-  padding: 6px 10px;
-  margin-bottom: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 3px;
+  flex-shrink: 0;
 }
 
 .studio-nav-pill {
+  flex: 1;
   background: transparent;
   color: var(--text-muted);
   border: none;
-  padding: 7px 15px;
+  padding: 7px 10px;
   border-radius: 20px;
   font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.18s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   white-space: nowrap;
 }
 
@@ -422,24 +434,40 @@ header {
 }
 
 .studio-nav-pill.active {
-  background: rgba(255, 255, 255, 0.16);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.08) 100%);
   color: #fff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
 }
 
-/* Studio Cards */
+/* Studio Active Card */
 .studio-card {
-  scroll-margin-top: calc(36vh + 70px);
+  flex: 1;
+  min-height: 0;
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
-  border-radius: 18px;
-  padding: 18px 20px;
+  border-radius: 14px;
+  padding: 10px 14px;
   backdrop-filter: blur(20px);
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 8px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   transition: border-color 0.2s ease;
+}
+
+.studio-card.tab-hidden {
+  display: none !important;
+}
+
+.studio-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  flex-shrink: 0;
 }
 
 .studio-card:hover {
@@ -1203,25 +1231,22 @@ header {
 
 .mobile-menu-popup { display: none; }
 
-/* ── Desktop & Large Screens (≥901px): Two-Column Layout (Sticky 3D Stage on Left, Scrollable Studios on Right) ── */
+/* ── Desktop & Large Screens (≥901px): Two-Column Fitted Workspace ── */
 @media (min-width: 901px) {
   #page-body {
-    display: flex;
     flex-direction: row;
-    align-items: flex-start;
     max-width: 1440px;
     margin: 0 auto;
-    gap: 24px;
-    padding: 18px 24px 60px;
+    width: 100%;
+    gap: 20px;
+    padding: 14px 20px 20px;
   }
 
   #hero-stage {
-    position: sticky;
-    top: 74px;
-    flex: 1.18;
-    height: calc(100vh - 96px);
-    min-height: 520px;
-    max-height: 860px;
+    flex: 1.25;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
     border-radius: 20px;
     border: 1px solid var(--panel-border);
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
@@ -1229,39 +1254,34 @@ header {
 
   #app-studios {
     flex: 1;
-    max-width: 640px;
-    width: 100%;
-    margin: 0;
-    padding: 0 0 60px 0;
-    gap: 18px;
-  }
-
-  .studio-card {
-    scroll-margin-top: 80px;
+    max-width: 580px;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+    padding: 0;
+    gap: 10px;
   }
 }
 
-/* ── Mobile & Tablet (≤900px): Fixed 3D Viewport on Top, Scrollable Studios Below ── */
+/* ── Mobile & Tablet (≤900px): Fitted 3D Viewport on Top, Active Studio Below ── */
 @media (max-width: 900px) {
   .hide-mobile { display: none !important; }
   .show-mobile { display: inline-flex !important; }
 
   header {
-    height: 52px;
-    padding: 0 14px;
+    height: 48px;
+    min-height: 48px;
+    padding: 0 12px;
   }
 
   .logo-group h1 { font-size: 0.95rem; }
   .logo-badge { font-size: 0.58rem; padding: 2px 6px; }
 
   #hero-stage {
-    position: sticky;
-    top: 52px;
-    z-index: 40;
-    width: 100%;
-    height: clamp(240px, 36vh, 320px);
+    flex: 1 1 44%;
+    min-height: 200px;
+    max-height: 48vh;
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 10px 28px -4px rgba(0, 0, 0, 0.8);
   }
 
   .stage-footer {
@@ -1276,93 +1296,82 @@ header {
   }
 
   #app-studios {
-    position: relative;
-    z-index: 10;
-    padding: 14px 12px 95px;
-    gap: 14px;
+    flex: 1 1 56%;
+    padding: 6px 10px 10px;
+    gap: 6px;
   }
 
   .studio-nav-bar {
-    justify-content: flex-start;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
-    padding: 6px 8px;
-    gap: 6px;
-    border-radius: 20px;
+    padding: 3px;
+    gap: 3px;
   }
-  .studio-nav-bar::-webkit-scrollbar {
-    display: none;
-  }
+
   .studio-nav-pill {
-    flex-shrink: 0;
-    padding: 6px 12px;
-    font-size: 0.76rem;
-    white-space: nowrap;
+    padding: 6px 8px;
+    font-size: 0.74rem;
   }
 
   .studio-card {
-    padding: 14px 14px;
+    padding: 10px 12px;
     border-radius: 14px;
-    gap: 12px;
-    scroll-margin-top: calc(36vh + 65px);
+    gap: 8px;
   }
 
   .studio-card-header h2 {
-    font-size: 0.92rem;
+    font-size: 0.88rem;
   }
 
   .paint3d-cards-grid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
+    gap: 5px;
   }
 
   .paint3d-color-card {
-    padding: 8px 8px;
-    gap: 6px;
-    border-radius: 10px;
+    padding: 6px 6px;
+    gap: 5px;
+    border-radius: 9px;
   }
 
   .color-card-swatch {
-    width: 24px;
-    height: 24px;
-    min-width: 24px;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
   }
 
-  .color-card-name { font-size: 0.72rem; }
-  .color-card-count { font-size: 0.68rem; }
+  .color-card-name { font-size: 0.7rem; }
+  .color-card-count { font-size: 0.65rem; }
 
   .moves-grid {
     grid-template-columns: repeat(6, 1fr);
-    gap: 6px;
+    gap: 5px;
   }
 
   .move-btn {
-    padding: 9px 0;
-    font-size: 0.82rem;
+    padding: 8px 0;
+    font-size: 0.8rem;
   }
 
   .net-2d-grid {
-    grid-template-columns: repeat(4, 66px);
-    grid-template-rows: repeat(3, 66px);
-    gap: 4px;
+    grid-template-columns: repeat(4, 62px);
+    grid-template-rows: repeat(3, 62px);
+    gap: 3px;
   }
 
   .net-2d-face {
-    grid-template-columns: repeat(3, 19px);
-    grid-template-rows: repeat(3, 19px);
+    grid-template-columns: repeat(3, 18px);
+    grid-template-rows: repeat(3, 18px);
   }
 
   .net-2d-cell {
-    width: 19px;
-    height: 19px;
+    width: 18px;
+    height: 18px;
   }
 
   /* Dropdown Menu on Mobile */
   .mobile-menu-popup {
     position: absolute;
-    top: 54px;
-    right: 12px;
+    top: 50px;
+    right: 10px;
     background: rgba(17, 24, 39, 0.97);
     backdrop-filter: blur(24px);
     border: 1px solid rgba(255, 255, 255, 0.14);
@@ -1384,7 +1393,7 @@ header {
     background: transparent;
     color: var(--text);
     border: none;
-    padding: 10px 14px;
+    padding: 9px 12px;
     border-radius: 8px;
     font-size: 0.82rem;
     font-weight: 600;
@@ -1403,32 +1412,24 @@ header {
 /* ── Landscape Mobile (≤900px and max-height 550px): Side-by-Side ── */
 @media (max-width: 900px) and (orientation: landscape) and (max-height: 550px) {
   #page-body {
-    display: flex;
     flex-direction: row;
-    align-items: flex-start;
-    padding: 8px 12px 60px;
-    gap: 14px;
+    padding: 6px 10px;
+    gap: 10px;
   }
 
   #hero-stage {
-    position: sticky;
-    top: 52px;
-    width: 48%;
-    height: calc(100vh - 60px);
-    min-height: auto;
+    flex: 1;
+    height: 100%;
     max-height: none;
-    border-radius: 14px;
+    border-radius: 12px;
     border-right: 1px solid rgba(255, 255, 255, 0.12);
     border-bottom: none;
   }
 
   #app-studios {
-    width: 52%;
-    padding: 0 0 70px 0;
-  }
-
-  .studio-card {
-    scroll-margin-top: 60px;
+    flex: 1.1;
+    height: 100%;
+    padding: 0;
   }
 }
 
