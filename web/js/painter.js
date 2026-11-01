@@ -448,10 +448,10 @@ class UnifiedPainter {
     // 3. Update 3D Balance Message
     if (this.balanceMsg) {
       if (allValid) {
-        this.balanceMsg.innerHTML = '<span class="status-ok">🎉 All 6 colors balanced (9/9) • Ready to solve!</span>';
+        this.balanceMsg.innerHTML = '<span class="status-ok">🎉 Ready to solve!</span>';
       } else {
         const summary = diffs.slice(0, 3).join(', ') + (diffs.length > 3 ? '…' : '');
-        this.balanceMsg.innerHTML = `<span class="status-warn">⚠️ Needs: ${summary}</span>`;
+        this.balanceMsg.innerHTML = `<span class="status-warn">⚠️ Need: ${summary}</span>`;
       }
     }
 

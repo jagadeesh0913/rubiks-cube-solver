@@ -1426,34 +1426,105 @@ header {
   }
 
   .studio-card {
-    padding: 10px 12px;
+    padding: 9px 11px;
     border-radius: 14px;
-    gap: 8px;
+    gap: 7px;
+  }
+
+  .studio-card-header {
+    padding-bottom: 6px;
+    gap: 6px;
   }
 
   .studio-card-header h2 {
-    font-size: 0.88rem;
+    font-size: 0.86rem;
+  }
+
+  .paint3d-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    width: 100%;
+    margin-bottom: 1px;
+  }
+
+  .paint3d-brush-pill {
+    padding: 4px 10px;
+    font-size: 0.74rem;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+  }
+
+  .paint3d-balance-bar {
+    padding: 4px 10px;
+    font-size: 0.74rem;
+    min-width: 0;
+    flex: initial;
+    border-radius: 16px;
+    white-space: nowrap;
+  }
+
+  .total-balance-meter-container {
+    display: none !important;
   }
 
   .paint3d-cards-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 6px;
+    width: 100%;
   }
 
   .paint3d-color-card {
-    padding: 8px 8px;
-    gap: 5px;
+    padding: 7px 8px;
+    gap: 4px;
     border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .paint3d-color-card.selected {
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.16) !important;
+    border-color: #fff !important;
+  }
+
+  .color-card-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
   .color-card-swatch {
-    width: 22px;
-    height: 22px;
-    min-width: 22px;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
   }
 
-  .color-card-name { font-size: 0.72rem; }
-  .color-card-count { font-size: 0.66rem; }
+  .color-card-name {
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  .color-card-count {
+    font-size: 0.67rem;
+    margin-top: 1px;
+  }
+
+  .color-progress-track {
+    height: 3px;
+    border-radius: 2px;
+  }
+
+  .studio-card-actions {
+    margin-top: 2px;
+    gap: 6px;
+  }
+
+  .studio-card-actions .btn {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
 
   .moves-grid {
     grid-template-columns: repeat(6, 1fr);
