@@ -53,7 +53,7 @@ class Cube3D {
     if (!h || h <= 0) h = Math.max(450, window.innerHeight - 180);
 
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x090a0f);
+    this.scene.background = null;
 
     this.camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 100);
     const defPos = this.getDefaultCameraPos();
@@ -601,8 +601,8 @@ class Cube3D {
   }
 
   getDefaultCameraPos() {
-    const isMobilePortrait = window.innerWidth <= 768 && (window.innerWidth < window.innerHeight);
-    return isMobilePortrait ? [10.2, 7.8, 12.2] : [8.5, 6.5, 10.0];
+    const isMobilePortrait = window.innerWidth <= 900 && (window.innerWidth < window.innerHeight);
+    return isMobilePortrait ? [8.8, 6.8, 10.4] : [8.5, 6.5, 10.0];
   }
 
   resetView() {

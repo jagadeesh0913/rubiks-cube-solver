@@ -72,6 +72,8 @@ class App {
         if (e.target === modal) this.closeCelebration();
       });
     }
+
+    this.initScrollNav();
   }
 
   // ─── Cube State Helpers ──────────────────────────────────────────────────────
@@ -484,13 +486,80 @@ class App {
 
   scrollToSection(id) {
     const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (!el) return;
+
+    const hero = document.getElementById('hero-stage');
+    const header = document.querySelector('header');
+    let offset = 70;
+
+    // Mobile offset: header + sticky 3D hero stage
+    if (window.innerWidth <= 900 && hero) {
+      const headerH = header ? header.offsetHeight : 52;
+      const heroH = hero.offsetHeight || 270;
+      offset = headerH + heroH + 12;
+    } else if (header) {
+      // Desktop: hero stage is sticky in left column, right column scrolls with header offset
+      offset = header.offsetHeight + 18;
     }
+
+    const bodyRect = document.body.getBoundingClientRect().top;
+    const elementRect = el.getBoundingClientRect().top;
+    const elementPosition = elementRect - bodyRect;
+    const offsetPosition = Math.max(0, elementPosition - offset);
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    });
   }
 
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  initScrollNav() {
+    const sections = ['sec-solution', 'sec-colors', 'sec-turns', 'sec-net'];
+    const navPills = document.querySelectorAll('.studio-nav-pill');
+    if (!navPills.length) return;
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        const hero = document.getElementById('hero-stage');
+        const header = document.querySelector('header');
+        let offset = 80;
+        if (window.innerWidth <= 900 && hero) {
+          const headerH = header ? header.offsetHeight : 52;
+          const heroH = hero.offsetHeight || 270;
+          offset = headerH + heroH + 40;
+        } else if (header) {
+          offset = header.offsetHeight + 40;
+        }
+
+        let currentSection = sections[0];
+        for (const id of sections) {
+          const el = document.getElementById(id);
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            if (rect.top <= offset) {
+              currentSection = id;
+            }
+          }
+        }
+
+        navPills.forEach(pill => {
+          const attr = pill.getAttribute('onclick') || '';
+          if (attr.includes(currentSection)) {
+            pill.classList.add('active');
+          } else {
+            pill.classList.remove('active');
+          }
+        });
+      });
+    }, { passive: true });
   }
 
   // ─── Jump or Toggle 2D panel ──────────────────────────────────────────────
