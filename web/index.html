@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>3D Rubik's Cube Solver &amp; Studio</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧊</text></svg>">
-  <link rel="stylesheet" href="css/style.css?v=3.3">
+  <link rel="stylesheet" href="css/style.css?v=3.4">
 </head>
 <body>
 
@@ -163,39 +163,58 @@
       <div class="studio-card-header">
         <div class="card-title-group">
           <span class="card-icon">⚡</span>
-          <h2>Solution &amp; Playback Studio</h2>
+          <h2>Solution Playback <span class="hide-mobile">Studio</span></h2>
         </div>
         <span class="solution-step" id="solution-step-label">0 / 0</span>
       </div>
 
       <div class="solution-bar-container">
-        <div class="solution-bar">
-          <span class="solution-info" id="solution-info-label">Solution: Ready</span>
-
-          <div class="playback-btn-group">
-            <button class="btn" onclick="app.player.stepBackward()" title="Step Backward">⏮</button>
-            <button class="btn btn-primary" id="btn-play-pause" onclick="app.player.togglePlay()">▶ Start</button>
-            <button class="btn" onclick="app.player.stepForward()" title="Step Forward">⏭</button>
+        <!-- Status summary banner -->
+        <div class="solution-status-bar">
+          <div class="solution-status-pill">
+            <span class="status-dot-active" id="solution-status-dot"></span>
+            <span class="solution-info" id="solution-info-label">Solution: Ready</span>
           </div>
-
-          <div class="speed-control">
-            <label for="speed-slider" style="font-size: 0.74rem; color: var(--text-muted);">Speed:</label>
-            <input type="range" class="speed-slider" id="speed-slider" min="50" max="10000" step="50" value="300">
-            <span class="speed-val" id="speed-val">300ms</span>
-          </div>
-
-          <div class="speed-presets">
-            <button class="btn btn-preset" onclick="app.player.setSpeed(100)">⚡0.1s</button>
-            <button class="btn btn-preset" onclick="app.player.setSpeed(300)">0.3s</button>
-            <button class="btn btn-preset" onclick="app.player.setSpeed(1500)">🐢1.5s</button>
-            <button class="btn btn-preset hide-mobile" onclick="app.player.setSpeed(5000)">5s</button>
-          </div>
+          <button class="btn btn-sm" onclick="app.solveCube()" title="Recalculate solution">
+            ⚡ Solve
+          </button>
         </div>
 
         <!-- Scrollable Move Badges Timeline -->
         <div class="moves-badges-wrapper">
+          <div class="moves-badges-header">
+            <span class="timeline-title">Move Sequence</span>
+            <span class="timeline-hint">Tap move to jump</span>
+          </div>
           <div class="moves-badges" id="moves-badges-list">
             <span style="color: var(--text-muted); font-size: 0.8rem;">Click "⚡ Calculate &amp; Solve" to load moves</span>
+          </div>
+        </div>
+
+        <!-- Modern Playback Deck Console -->
+        <div class="player-deck">
+          <button class="btn btn-icon deck-step-btn" onclick="app.player.stepBackward()" title="Step Backward">
+            ⏮
+          </button>
+          <button class="btn btn-primary deck-play-btn" id="btn-play-pause" onclick="app.player.togglePlay()">
+            ▶ Start
+          </button>
+          <button class="btn btn-icon deck-step-btn" onclick="app.player.stepForward()" title="Step Forward">
+            ⏭
+          </button>
+        </div>
+
+        <!-- Modern Speed Controls Strip -->
+        <div class="player-speed-bar">
+          <div class="speed-presets-group">
+            <button class="btn btn-preset" data-speed="100" onclick="app.player.setSpeed(100)">⚡ Fast</button>
+            <button class="btn btn-preset active" data-speed="300" onclick="app.player.setSpeed(300)">0.3s Normal</button>
+            <button class="btn btn-preset" data-speed="1500" onclick="app.player.setSpeed(1500)">🐢 Slow</button>
+          </div>
+          <div class="speed-slider-wrap hide-mobile">
+            <label for="speed-slider" style="font-size: 0.72rem; color: var(--text-muted);">Speed:</label>
+            <input type="range" class="speed-slider" id="speed-slider" min="50" max="5000" step="50" value="300">
+            <span class="speed-val" id="speed-val">300ms</span>
           </div>
         </div>
       </div>
@@ -305,10 +324,10 @@
 
   <script src="js/three.min.js"></script>
   <script src="js/OrbitControls.js"></script>
-  <script src="js/cube3d.js?v=3.0"></script>
-  <script src="js/painter.js?v=3.0"></script>
-  <script src="js/player.js?v=3.0"></script>
-  <script src="js/app.js?v=3.0"></script>
+  <script src="js/cube3d.js?v=3.1"></script>
+  <script src="js/painter.js?v=3.1"></script>
+  <script src="js/player.js?v=3.1"></script>
+  <script src="js/app.js?v=3.1"></script>
 
 </body>
 </html>

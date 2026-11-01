@@ -325,6 +325,9 @@ class SolutionPlayer {
     this.speedMs = Math.max(40, Math.min(10000, ms));
     if (this.speedSlider) this.speedSlider.value = this.speedMs;
     this.updateSpeedDisplay();
+    document.querySelectorAll('.speed-presets-group .btn-preset').forEach(btn => {
+      btn.classList.toggle('active', parseInt(btn.getAttribute('data-speed'), 10) === this.speedMs);
+    });
     if (this.app.cube3d) {
       this.app.cube3d.setAnimDuration(this.speedMs);
     }
