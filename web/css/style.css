@@ -1002,6 +1002,16 @@ main {
 .hide-mobile { display: inherit; }
 .show-mobile { display: none !important; }
 
+/* Floating Recenter Button */
+.floating-cam-btn {
+  display: none;
+}
+
+/* Mobile Dropdown Menu */
+.mobile-menu-popup {
+  display: none;
+}
+
 /* Segmented Mobile Tab Switcher */
 .mobile-tabs {
   display: none;
@@ -1055,52 +1065,156 @@ main {
   .hide-mobile { display: none !important; }
   .show-mobile { display: inline-flex !important; }
 
-  /* Single-Row Clean Top Header */
+  /* Single-Row Clean Top Header — Spacious & Unmerged */
   header {
-    height: 48px;
-    padding: 6px 10px;
+    height: 52px;
+    padding: 8px 14px;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    gap: 6px;
-    border-bottom: 1px solid var(--panel-border);
-    background: rgba(12, 14, 20, 0.98);
+    gap: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(12, 16, 26, 0.94);
+    backdrop-filter: blur(20px);
+    position: relative;
+    z-index: 40;
   }
 
   .logo-group h1 {
-    font-size: 0.92rem;
+    font-size: 0.98rem;
     font-weight: 800;
     white-space: nowrap;
+    letter-spacing: 0.5px;
   }
 
-  .header-actions {
+  .logo-text {
+    background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Right Side: Only 3 Clean, Well-Spaced Buttons */
+  .mobile-top-bar {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 8px;
     flex-wrap: nowrap;
   }
 
-  .header-actions .btn {
-    padding: 6px 9px;
-    font-size: 0.78rem;
-    min-height: 34px;
-    border-radius: 6px;
-    white-space: nowrap;
-    gap: 4px;
-  }
-
-  .btn-icon {
-    min-width: 34px;
-    padding: 6px 8px !important;
-    justify-content: center;
-  }
-
-  .btn-net-badge {
-    background: #1e3a5f !important;
-    color: #60a5fa !important;
-    border-color: #2563eb !important;
+  /* Glowing Primary Solve Pill */
+  .btn-solve-glow {
+    background: linear-gradient(135deg, #e63946 0%, #ff4d6d 100%) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255, 77, 109, 0.45) !important;
+    border-radius: 20px !important;
+    padding: 6px 14px !important;
     font-weight: 700 !important;
+    font-size: 0.82rem !important;
+    min-height: 35px;
+    box-shadow: 0 4px 14px rgba(230, 57, 70, 0.45);
+    transition: all 0.15s ease;
+  }
+
+  .btn-solve-glow:active {
+    transform: scale(0.95);
+  }
+
+  /* Sleek Circular Glass Icon Buttons */
+  .btn-icon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-icon:active {
+    transform: scale(0.92);
+    background: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  /* Floating Dropdown Menu */
+  .mobile-menu-popup {
+    position: absolute;
+    top: 56px;
+    right: 12px;
+    background: rgba(17, 24, 39, 0.96);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 14px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
+    padding: 6px;
+    display: none;
+    flex-direction: column;
+    gap: 3px;
+    z-index: 150;
+    min-width: 210px;
+    animation: menuSlideDown 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .mobile-menu-popup.show {
+    display: flex !important;
+  }
+
+  @keyframes menuSlideDown {
+    from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .mobile-menu-item {
+    background: transparent;
+    color: var(--text);
+    border: none;
+    padding: 11px 14px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .mobile-menu-item:hover, .mobile-menu-item:active {
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  /* Floating Recenter Button on Canvas */
+  .floating-cam-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: rgba(15, 23, 42, 0.68);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 6px 13px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #e2e8f0;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    z-index: 25;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .floating-cam-btn:active {
+    transform: scale(0.93);
+    background: rgba(15, 23, 42, 0.92);
   }
 
   /* Main Viewport: Canvas gets maximum breathing room */
@@ -1115,6 +1229,7 @@ main {
     min-height: 0;
     width: 100%;
     position: relative;
+    background: radial-gradient(circle at 50% 45%, rgba(30, 58, 138, 0.18) 0%, rgba(9, 10, 15, 0.98) 75%);
   }
 
   /* 2D Panel: Clean Slide-Over Drawer with Dark Backdrop */
@@ -1132,7 +1247,7 @@ main {
     background: rgba(13, 16, 23, 0.98);
     backdrop-filter: blur(20px);
     box-shadow: -8px 0 32px rgba(0, 0, 0, 0.8);
-    padding: 14px 14px 20px;
+    padding: 16px 16px 24px;
     overflow-y: auto;
   }
 
@@ -1141,12 +1256,12 @@ main {
   }
 
   .btn-close-panel {
-    padding: 6px 14px !important;
-    font-size: 0.85rem !important;
+    padding: 7px 16px !important;
+    font-size: 0.86rem !important;
     font-weight: 700 !important;
-    background: rgba(255, 255, 255, 0.12) !important;
+    background: rgba(255, 255, 255, 0.14) !important;
     border-radius: 8px !important;
-    min-height: 34px;
+    min-height: 36px;
   }
 
   /* 2D Net in Drawer */
@@ -1177,11 +1292,13 @@ main {
 
   /* ── Bottom Controls Hub ── */
   #bottom-panel {
-    padding: 6px 10px 8px;
+    padding: 8px 12px 10px;
     gap: 4px;
-    background: rgba(12, 15, 22, 0.96);
-    border-top: 1px solid var(--panel-border);
-    backdrop-filter: blur(16px);
+    background: rgba(11, 14, 23, 0.96);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px 18px 0 0;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
     z-index: 20;
     flex-shrink: 0;
   }
@@ -1189,13 +1306,27 @@ main {
   /* Segmented Mode Switcher */
   .mobile-tabs {
     display: flex;
-    background: rgba(0, 0, 0, 0.45);
-    border: 1px solid var(--panel-border);
-    border-radius: 20px;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 22px;
     padding: 3px;
     gap: 3px;
-    margin: 0 auto 5px;
+    margin: 0 auto 6px;
     width: fit-content;
+  }
+
+  .mobile-tab-btn {
+    padding: 6px 14px;
+    border-radius: 18px;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  .mobile-tab-btn.active {
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
   }
 
   .mobile-tab-hidden {
@@ -1216,16 +1347,16 @@ main {
     align-items: center;
     justify-content: space-between;
     gap: 6px;
-    padding: 5px 8px;
-    border-radius: 8px;
+    padding: 6px 10px;
+    border-radius: 10px;
     background: rgba(0, 0, 0, 0.35);
-    border: 1px solid var(--panel-border);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     width: 100%;
     flex-shrink: 0;
   }
 
   .solution-info {
-    font-size: 0.74rem;
+    font-size: 0.76rem;
     flex: 1;
     min-width: 0;
     white-space: nowrap;
@@ -1234,23 +1365,26 @@ main {
   }
 
   #btn-play-pause {
-    min-width: 76px;
-    padding: 6px 10px;
-    font-size: 0.8rem;
+    min-width: 78px;
+    padding: 6px 12px;
+    font-size: 0.82rem;
     min-height: 36px;
     white-space: nowrap;
+    border-radius: 8px;
   }
 
   .solution-bar > .btn {
-    padding: 6px 9px;
+    padding: 6px 10px;
     min-height: 36px;
-    font-size: 0.85rem;
+    font-size: 0.86rem;
+    border-radius: 8px;
   }
 
   .speed-control {
-    padding: 3px 6px;
-    gap: 4px;
+    padding: 3px 8px;
+    gap: 5px;
     background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
   }
 
   .speed-slider {
@@ -1277,6 +1411,7 @@ main {
     padding: 4px 8px;
     font-size: 0.75rem;
     flex-shrink: 0;
+    border-radius: 6px;
   }
 
   /* Manual Turns Mode: Clean 6-Column Grid */
@@ -1288,24 +1423,25 @@ main {
   .moves-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    gap: 5px;
+    gap: 6px;
     width: 100%;
   }
 
   .move-btn {
-    padding: 8px 0;
-    font-size: 0.82rem;
+    padding: 9px 0;
+    font-size: 0.84rem;
     font-weight: 700;
     text-align: center;
     min-height: 38px;
-    border-radius: 6px;
+    border-radius: 8px;
     background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   /* Celebration Modal Mobile */
   .celebration-card {
     padding: 24px 18px 18px;
-    border-radius: 14px;
+    border-radius: 16px;
     margin: 12px;
   }
   .celebration-title { font-size: 1.5rem; }
@@ -1320,13 +1456,15 @@ main {
     padding: 10px 14px;
     font-size: 0.85rem;
     min-height: 44px;
+    border-radius: 10px;
   }
 }
 
 /* ── Extra Small Phones (≤380px) ── */
 @media (max-width: 380px) {
   .logo-group h1 { font-size: 0.85rem; }
-  .header-actions .btn { padding: 5px 6px; font-size: 0.74rem; }
+  .btn-solve-glow { padding: 5px 10px !important; font-size: 0.76rem !important; }
+  .btn-icon { width: 32px; height: 32px; min-width: 32px; font-size: 0.85rem; }
   .net-2d-grid {
     grid-template-columns: repeat(4, 62px);
     grid-template-rows: repeat(3, 62px);

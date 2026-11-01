@@ -79,12 +79,16 @@ class App {
   }
 
   highlightSolveButton() {
-    const btn = document.getElementById('btn-solve');
-    if (!btn) return;
-    btn.classList.add('pulse-attention');
+    ['btn-solve', 'btn-solve-desktop'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.classList.add('pulse-attention');
+    });
     clearTimeout(this._solvePulseTimer);
     this._solvePulseTimer = setTimeout(() => {
-      btn.classList.remove('pulse-attention');
+      ['btn-solve', 'btn-solve-desktop'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.classList.remove('pulse-attention');
+      });
     }, 2800);
   }
 
@@ -404,8 +408,31 @@ class App {
   toggleStickerStyle() {
     const newStyle = (this.cube3d.stickerStyle === 'circles') ? 'tiles' : 'circles';
     this.cube3d.setStickerStyle(newStyle);
-    const btn = document.getElementById('btn-sticker-style');
-    if (btn) btn.textContent = (newStyle === 'circles') ? 'Style: Circles' : 'Style: Squares';
+    ['btn-sticker-style', 'btn-sticker-style-mobile'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.textContent = (newStyle === 'circles') ? 'Style: Circles' : 'Style: Squares';
+    });
+  }
+
+  // ─── Mobile Dropdown Menu ───────────────────────────────────────────────────
+  toggleMobileMenu() {
+    const menu = document.getElementById('mobile-menu-popup');
+    if (!menu) return;
+    const isShown = menu.classList.toggle('show');
+    if (isShown) {
+      const closeMenu = (e) => {
+        if (!e.target.closest('#mobile-menu-popup') && !e.target.closest('#btn-mobile-menu')) {
+          menu.classList.remove('show');
+          document.removeEventListener('click', closeMenu);
+        }
+      };
+      setTimeout(() => document.addEventListener('click', closeMenu), 10);
+    }
+  }
+
+  closeMobileMenu() {
+    const menu = document.getElementById('mobile-menu-popup');
+    if (menu) menu.classList.remove('show');
   }
 
   // ─── Mobile Segmented Tab Switcher ──────────────────────────────────────────
@@ -414,17 +441,20 @@ class App {
     const movesRow  = document.getElementById('row-moves-controls');
     const tabPlayer = document.getElementById('tab-btn-player');
     const tabMoves  = document.getElementById('tab-btn-moves');
+    const tabNet    = document.getElementById('tab-btn-net');
 
     if (tab === 'player') {
       if (playerRow) playerRow.classList.remove('mobile-tab-hidden');
       if (movesRow)  movesRow.classList.add('mobile-tab-hidden');
       if (tabPlayer) tabPlayer.classList.add('active');
       if (tabMoves)  tabMoves.classList.remove('active');
+      if (tabNet)    tabNet.classList.remove('active');
     } else if (tab === 'moves') {
       if (playerRow) playerRow.classList.add('mobile-tab-hidden');
       if (movesRow)  movesRow.classList.remove('mobile-tab-hidden');
       if (tabPlayer) tabPlayer.classList.remove('active');
       if (tabMoves)  tabMoves.classList.add('active');
+      if (tabNet)    tabNet.classList.remove('active');
     }
   }
 
@@ -434,6 +464,12 @@ class App {
     if (!panel) return;
     const isOpen = panel.classList.toggle('mobile-open');
 
+    const tabNet = document.getElementById('tab-btn-net');
+    if (tabNet) {
+      if (isOpen) tabNet.classList.add('active');
+      else tabNet.classList.remove('active');
+    }
+
     // Add/remove dark backdrop so user can tap outside to close
     let backdrop = document.getElementById('mobile-backdrop');
     if (isOpen) {
@@ -441,8 +477,8 @@ class App {
         backdrop = document.createElement('div');
         backdrop.id = 'mobile-backdrop';
         backdrop.style.cssText = [
-          'position:fixed', 'inset:0', 'background:rgba(0,0,0,0.55)',
-          'z-index:199', 'backdrop-filter:blur(2px)', 'animation:fadeIn 0.2s ease'
+          'position:fixed', 'inset:0', 'background:rgba(0,0,0,0.65)',
+          'z-index:199', 'backdrop-filter:blur(4px)', 'animation:fadeIn 0.2s ease'
         ].join(';');
         backdrop.addEventListener('click', () => this.toggle2DPanel());
         document.body.appendChild(backdrop);

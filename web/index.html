@@ -11,29 +11,52 @@
   <!-- Top Navigation Header -->
   <header>
     <div class="logo-group">
-      <h1>🧊 <span class="logo-text">RUBIK'S CUBE</span></h1>
+      <h1>🧊 <span class="logo-text">CUBE 3D</span></h1>
       <div class="header-sub hide-mobile">2D &amp; 3D Views • Optimal Solver</div>
     </div>
 
-    <div class="header-actions">
-      <button class="btn btn-primary" id="btn-solve" onclick="app.solveCube()" title="Calculate optimal solution">
-        ⚡ <span class="hide-mobile">Find Solution</span><span class="show-mobile">Solve</span>
+    <!-- Desktop Header Actions -->
+    <div class="header-actions hide-mobile">
+      <button class="btn btn-primary" id="btn-solve-desktop" onclick="app.solveCube()" title="Calculate optimal solution">
+        ⚡ Find Solution
       </button>
-      <button class="btn btn-icon" onclick="app.scramble()" title="Scramble with 20 random moves">
-        🔀 <span class="hide-mobile">Scramble</span>
+      <button class="btn" onclick="app.scramble()" title="Scramble with 20 random moves">
+        🔀 Scramble
       </button>
-      <button class="btn btn-icon" onclick="app.reset()" title="Reset cube to solved state">
-        ↺ <span class="hide-mobile">Reset</span>
+      <button class="btn" onclick="app.reset()" title="Reset cube to solved state">
+        ↺ Reset
       </button>
-      <button class="btn btn-icon" onclick="app.cube3d.resetView()" title="Reset 3D camera angle">
-        <span class="hide-mobile">Reset View</span><span class="show-mobile">📷</span>
+      <button class="btn" onclick="app.cube3d.resetView()" title="Reset 3D camera angle">
+        Reset View
       </button>
-      <button class="btn hide-mobile" id="btn-sticker-style" onclick="app.toggleStickerStyle()">
+      <button class="btn" id="btn-sticker-style" onclick="app.toggleStickerStyle()">
         Style: Circles
       </button>
-      <!-- Mobile only: Toggle 2D panel -->
-      <button class="btn show-mobile btn-net-badge" id="btn-toggle-2d" onclick="app.toggle2DPanel()" title="Open 2D Flat Net & Color Palette">
-        🎨 2D Net
+    </div>
+
+    <!-- Mobile Header Actions (Clean, Spacious, Unmerged!) -->
+    <div class="header-actions show-mobile mobile-top-bar">
+      <button class="btn btn-primary btn-solve-glow" id="btn-solve" onclick="app.solveCube()" title="Calculate optimal solution">
+        ⚡ Solve
+      </button>
+      <button class="btn btn-icon" onclick="app.scramble()" title="Scramble Cube">
+        🔀
+      </button>
+      <button class="btn btn-icon" id="btn-mobile-menu" onclick="app.toggleMobileMenu()" title="More Options">
+        ⋯
+      </button>
+    </div>
+
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobile-menu-popup" class="mobile-menu-popup show-mobile">
+      <button class="mobile-menu-item" onclick="app.reset(); app.closeMobileMenu();">
+        ↺ Reset to Solved State
+      </button>
+      <button class="mobile-menu-item" onclick="app.cube3d.resetView(); app.closeMobileMenu();">
+        📷 Recenter 3D View
+      </button>
+      <button class="mobile-menu-item" id="btn-sticker-style-mobile" onclick="app.toggleStickerStyle(); app.closeMobileMenu();">
+        🎨 Sticker Style: Circles / Squares
       </button>
     </div>
   </header>
@@ -43,6 +66,9 @@
     <!-- 3D WebGL Canvas + overlaid hints -->
     <div id="canvas-container">
       <div class="canvas-hint hide-mobile">Drag to orbit • Scroll to zoom • Click sticker to paint</div>
+      <button class="floating-cam-btn show-mobile" onclick="app.cube3d.resetView()" title="Center Camera View">
+        📷 Recenter
+      </button>
       <div id="active-move-display">•</div>
       <div id="toast"></div>
     </div>
@@ -92,10 +118,13 @@
     <!-- Mobile Segmented Tab Switcher (Mobile Only) -->
     <div class="mobile-tabs show-mobile">
       <button class="mobile-tab-btn active" id="tab-btn-player" onclick="app.switchMobileTab('player')">
-        ▶ Solution Player
+        ▶ Solution
       </button>
       <button class="mobile-tab-btn" id="tab-btn-moves" onclick="app.switchMobileTab('moves')">
-        🖐️ Manual Turns
+        🖐️ Turns
+      </button>
+      <button class="mobile-tab-btn" id="tab-btn-net" onclick="app.toggle2DPanel()">
+        🎨 2D Net
       </button>
     </div>
 

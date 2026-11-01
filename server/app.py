@@ -124,10 +124,21 @@ def start_server(port: int = 8000, open_browser: bool = True):
     for p in range(port, port + 20):
         try:
             httpd = ThreadedHTTPServer(("", p), CubeRequestHandler)
+            import socket
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                s.connect(("8.8.8.8", 80))
+                local_ip = s.getsockname()[0]
+                s.close()
+            except Exception:
+                local_ip = "192.168.1.9"
+
             url = f"http://localhost:{p}/index.html"
+            mobile_url = f"http://{local_ip}:{p}/index.html"
             print(f"==================================================")
             print(f"  3D Rubik's Cube Solver running at:")
-            print(f"  --> {url}")
+            print(f"  --> Desktop: {url}")
+            print(f"  --> Mobile (Same WiFi): {mobile_url}")
             print(f"==================================================")
             if open_browser:
                 webbrowser.open(url)
